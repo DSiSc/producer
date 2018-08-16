@@ -1,10 +1,10 @@
 package config
 
 import (
-	"strings"
-	"io/ioutil"
 	"encoding/json"
+	"io/ioutil"
 	"path/filepath"
+	"strings"
 )
 
 var ConfigName = "config.json"
@@ -15,7 +15,7 @@ func New(path string) Config {
 
 type Config struct {
 	filePath string
-	maps map[string] interface{}
+	maps     map[string]interface{}
 }
 
 // Read the given json file.

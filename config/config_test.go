@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func Test_GetConfigItem(t *testing.T){
+func Test_GetConfigItem(t *testing.T) {
 
 	config := New(ConfigName)
 	if nil == &config {
@@ -19,14 +19,14 @@ func Test_GetConfigItem(t *testing.T){
 	pasedItem := config.GetConfigItem("producer.policy")
 	if nil != pasedItem && "time" == pasedItem.(string) {
 		t.Log("PASS: success to get a exist item in config.")
-	}else{
+	} else {
 		t.Error("UNPASS: failed to get a exist item in config.")
 	}
 
 	pasedItem = config.GetConfigItem("producer.pol")
 	if nil != pasedItem {
 		t.Error("UNPASS: failed to test getting a not exist item.")
-	}else{
+	} else {
 		t.Log("PASS: success to test getting a not exist item.")
 	}
 }
