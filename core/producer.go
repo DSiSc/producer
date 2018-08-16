@@ -3,7 +3,7 @@ package core
 import (
 	"github.com/DSiSc/txpool/common/log"
 	"github.com/DSiSc/txpool/core"
-	"github.com/producer/common"
+	"github.com/DSiSc/producer/common"
 )
 
 type Producer struct {
