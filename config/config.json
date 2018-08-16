@@ -1,0 +1,5 @@
+{
+  "producer":{
+    "policy":"time"
+  }
+}
