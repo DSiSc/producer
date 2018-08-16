@@ -1,13 +1,12 @@
 package core
 
 import (
-	"github.com/DSiSc/txpool/common/log"
-	"github.com/DSiSc/txpool/core"
 	"github.com/DSiSc/producer/common"
 	"github.com/DSiSc/producer/config"
 	"github.com/DSiSc/producer/core/timer"
+	"github.com/DSiSc/txpool/common/log"
+	"github.com/DSiSc/txpool/core"
 	"strconv"
-	"github.com/DSiSc/producer/common"
 )
 
 type Producer interface {

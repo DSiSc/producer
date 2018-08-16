@@ -2,8 +2,8 @@
 package timer
 
 import (
+	"github.com/DSiSc/producer/common"
 	"github.com/DSiSc/txpool/core"
-	"github.com/producer/common"
 )
 
 type TimerProducer struct {
