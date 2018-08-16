@@ -17,7 +17,7 @@ func Test_GetConfigItem(t *testing.T) {
 	}
 
 	pasedItem := config.GetConfigItem("producer.policy")
-	if nil != pasedItem && "time" == pasedItem.(string) {
+	if nil != pasedItem && "timer" == pasedItem.(string) {
 		t.Log("PASS: success to get a exist item in config.")
 	} else {
 		t.Error("UNPASS: failed to get a exist item in config.")
