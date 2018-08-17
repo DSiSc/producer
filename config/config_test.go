@@ -1,32 +1,22 @@
 package config
 
 import (
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func Test_GetConfigItem(t *testing.T) {
-
+	assert := assert.New(t)
 	config := New(ConfigName)
-	if nil == &config {
-		t.Error("UNPASS: failed to init a config.")
-	}
+	assert.NotNil(&config)
 
 	parsedStruct := config.GetConfigItem("producer")
-	if nil == parsedStruct {
-		t.Error("UNPASS: failed to get a config item.")
-	}
+	assert.NotNil(parsedStruct)
 
 	pasedItem := config.GetConfigItem("producer.policy")
-	if nil != pasedItem && "timer" == pasedItem.(string) {
-		t.Log("PASS: success to get a exist item in config.")
-	} else {
-		t.Error("UNPASS: failed to get a exist item in config.")
-	}
+	assert.NotNil(pasedItem)
+	assert.Equal("timer", pasedItem.(string), "they should be equal")
 
 	pasedItem = config.GetConfigItem("producer.pol")
-	if nil != pasedItem {
-		t.Error("UNPASS: failed to test getting a not exist item.")
-	} else {
-		t.Log("PASS: success to test getting a not exist item.")
-	}
+	assert.Nil(pasedItem)
 }

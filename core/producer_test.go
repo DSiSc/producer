@@ -1,30 +1,23 @@
 package core
 
 import (
+	"github.com/stretchr/testify/assert"
 	"reflect"
 	"testing"
 )
 
 func Test_NewProducer(t *testing.T) {
+	assert := assert.New(t)
 	producer, err := NewProducer(nil)
-	if nil != producer && nil == err {
-		t.Log("PASS: success to create a producer.")
-	} else {
-		t.Error("UNPASS: failed to create a producer.")
-	}
+	assert.NotNil(producer)
+	assert.Nil(err)
 
 	p := reflect.TypeOf(producer)
 	method, exist := p.MethodByName("Start")
-	if nil != &method && exist {
-		t.Log("PASS: success to create a producer with method Start().")
-	} else {
-		t.Error("UNPASS: failed to create a producer with method Start().")
-	}
+	assert.NotNil(method)
+	assert.True(exist)
 
 	method, exist = p.MethodByName("Stop")
-	if nil != &method && exist {
-		t.Log("PASS: success to create a producer with method Stop().")
-	} else {
-		t.Error("UNPASS: failed to create a producer with method Stop().")
-	}
+	assert.NotNil(method)
+	assert.True(exist)
 }

@@ -1,36 +1,29 @@
 package timer
 
 import (
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 var timer uint64 = 10
 
 func Test_NewTimerProducer(t *testing.T) {
+	assert := assert.New(t)
 	producer, err := NewTimerProducer(nil, timer)
-	if nil != producer && err == nil {
-		t.Log("PASS: success to create a producer.")
-	} else {
-		t.Error("UNPASS: failed to create a producer.")
-	}
-
-	if timer == producer.time {
-		t.Log("PASS: success to get time of producer.")
-	} else {
-		t.Error("UNPASS: failed to get time of producer.")
-	}
+	assert.NotNil(producer)
+	assert.Nil(err)
+	assert.Equal(timer, producer.time, "they should not be equal")
 }
 
 func Test_MakeBlock(t *testing.T) {
+	assert := assert.New(t)
 	producer, _ := NewTimerProducer(nil, timer)
+	assert.NotNil(producer)
 	go func() {
 		err := producer.Start()
-		if err != nil {
-			t.Log("UNPASS: failed to make a block.")
-		} else {
-			t.Log("PASS: success to make a block.")
-		}
+		assert.Nil(err)
 	}()
-	producer.Stop()
-	t.Log("PASS: success to stop make block.")
+
+	err := producer.Stop()
+	assert.Nil(err)
 }
