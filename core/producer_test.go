@@ -14,10 +14,17 @@ func Test_NewProducer(t *testing.T) {
 	}
 
 	p := reflect.TypeOf(producer)
-	method, exist := p.MethodByName("MakeBlock")
+	method, exist := p.MethodByName("Start")
 	if nil != &method && exist {
-		t.Log("PASS: success to create a producer with method MakeBlock().")
+		t.Log("PASS: success to create a producer with method Start().")
 	} else {
-		t.Error("UNPASS: failed to create a producer with method MakeBlock().")
+		t.Error("UNPASS: failed to create a producer with method Start().")
+	}
+
+	method, exist = p.MethodByName("Stop")
+	if nil != &method && exist {
+		t.Log("PASS: success to create a producer with method Stop().")
+	} else {
+		t.Error("UNPASS: failed to create a producer with method Stop().")
 	}
 }

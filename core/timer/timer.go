@@ -2,7 +2,8 @@
 package timer
 
 import (
-	// "github.com/DSiSc/producer/common"
+	"github.com/DSiSc/producer/common"
+	txpool "github.com/DSiSc/txpool/common"
 	"github.com/DSiSc/txpool/common/log"
 	"github.com/DSiSc/txpool/core"
 	"time"
@@ -28,13 +29,13 @@ func (self *TimerProducer) GetTime() uint64 {
 	return self.time
 }
 
-func (self *TimerProducer) MakeBlock() interface{} {
+func (self *TimerProducer) Start() error {
 	timer := time.NewTicker(time.Duration(self.time) * time.Second)
 	for {
 		defer timer.Stop()
 		select {
 		case <-timer.C:
-			err := self.genBlock()
+			err := self.makeBlock()
 			if err != nil {
 				log.Error("Timer generate block failed.")
 				return err
@@ -45,14 +46,31 @@ func (self *TimerProducer) MakeBlock() interface{} {
 	}
 }
 
-func (self *TimerProducer) genBlock() error {
-	log.Info("Timer to generate block.")
-	return nil
-}
-
-func (self *TimerProducer) StopMakeBlock() {
+func (self *TimerProducer) Stop() error {
 	if complete != nil {
 		close(complete)
 		complete = nil
 	}
+	return nil
+}
+
+func (self *TimerProducer) makeBlock() error {
+	log.Info("Timer begin to generate block.")
+
+	self.makeHeader()
+
+	return nil
+}
+
+func (self *TimerProducer) makeHeader() *common.Header {
+	var addess txpool.Hash
+	header := &common.Header{
+		Version:          uint32(0),
+		PrevBlockHash:    addess,
+		TransactionsRoot: addess,
+		BlockRoot:        addess,
+		Timestamp:        uint32(10),
+		Height:           uint32(10),
+	}
+	return header
 }

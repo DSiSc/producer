@@ -9,7 +9,8 @@ import (
 )
 
 type Producer interface {
-	MakeBlock() interface{}
+	Start() error
+	Stop() error
 }
 
 const (
