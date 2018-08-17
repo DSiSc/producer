@@ -25,7 +25,7 @@ func Test_MakeBlock(t *testing.T) {
 	producer, _ := NewTimerProducer(nil, timer)
 	go func() {
 		err := producer.MakeBlock()
-		if err != nil{
+		if err != nil {
 			t.Log("UNPASS: failed to make a block.")
 		} else {
 			t.Log("PASS: success to make a block.")

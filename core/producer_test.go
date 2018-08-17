@@ -1,6 +1,7 @@
 package core
 
 import (
+	"reflect"
 	"testing"
 )
 
@@ -11,10 +12,12 @@ func Test_NewProducer(t *testing.T) {
 	} else {
 		t.Error("UNPASS: failed to create a producer.")
 	}
-	block, ok := producer.MakeBlock()
-	if nil != block && nil == ok {
-		t.Log("PASS: success to make a block.")
+
+	p := reflect.TypeOf(producer)
+	method, exist := p.MethodByName("MakeBlock")
+	if nil != &method && exist {
+		t.Log("PASS: success to create a producer with method MakeBlock().")
 	} else {
-		t.Error("UNPASS: failed to make a block.")
+		t.Error("UNPASS: failed to create a producer with method MakeBlock().")
 	}
 }
