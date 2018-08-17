@@ -15,7 +15,7 @@ func Test_NewTimerProducer(t *testing.T) {
 	assert.Equal(timer, producer.time, "they should not be equal")
 }
 
-func Test_MakeBlock(t *testing.T) {
+func Test_Start(t *testing.T) {
 	assert := assert.New(t)
 	producer, _ := NewTimerProducer(nil, timer)
 	assert.NotNil(producer)

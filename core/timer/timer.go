@@ -12,6 +12,9 @@ import (
 // symbol to stop producing blocks
 var complete chan int
 
+// default version
+const Version uint32 = 0
+
 type TimerProducer struct {
 	txpool *core.TxPool
 	time   uint64
@@ -35,7 +38,7 @@ func (self *TimerProducer) Start() error {
 		defer timer.Stop()
 		select {
 		case <-timer.C:
-			err := self.makeBlock()
+			_, err := self.makeBlock()
 			if err != nil {
 				log.Error("Timer generate block failed.")
 				return err
@@ -54,23 +57,24 @@ func (self *TimerProducer) Stop() error {
 	return nil
 }
 
-func (self *TimerProducer) makeBlock() error {
-	log.Info("Timer begin to generate block.")
-
-	self.makeHeader()
-
-	return nil
-}
-
-func (self *TimerProducer) makeHeader() *common.Header {
-	var addess txpool.Hash
-	header := &common.Header{
-		Version:          uint32(0),
-		PrevBlockHash:    addess,
-		TransactionsRoot: addess,
-		BlockRoot:        addess,
-		Timestamp:        uint32(10),
-		Height:           uint32(10),
+func (self *TimerProducer) makeBlock() (*common.Block, error) {
+	txs := self.txpool.GetTxs()
+	txHash := make([]txpool.Hash, 0, len(txs))
+	for _, t := range txs {
+		txHash = append(txHash, t.Hash())
 	}
-	return header
+	txRoot := common.ComputeMerkleRoot(txHash)
+	header := &common.Header{
+		Version:          Version,
+		TransactionsRoot: txRoot,
+		Timestamp:        uint32(time.Now().Unix()),
+		Height:           1,
+	}
+
+	block := &common.Block{
+		Header:       header,
+		Transactions: txs,
+	}
+
+	return block, nil
 }

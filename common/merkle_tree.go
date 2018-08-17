@@ -24,17 +24,6 @@ func Serialize(w io.Writer, u *common.Hash) error {
 	return err
 }
 
-func ComputeMerkleRoot(hashes []common.Hash) common.Hash {
-	if len(hashes) == 0 {
-		return common.Hash{}
-	}
-	if len(hashes) == 1 {
-		return hashes[0]
-	}
-	tree, _ := newMerkleTree(hashes)
-	return tree.Root.Hash
-}
-
 //Generate the leaves nodes
 func generateLeaves(hashes []common.Hash) []*merkleTreeNode {
 	var leaves []*merkleTreeNode
@@ -104,4 +93,15 @@ func newMerkleTree(hashes []common.Hash) (*merkleTree, error) {
 		Depth: height,
 	}
 	return mt, nil
+}
+
+func ComputeMerkleRoot(hashes []common.Hash) common.Hash {
+	if len(hashes) == 0 {
+		return common.Hash{}
+	}
+	if len(hashes) == 1 {
+		return hashes[0]
+	}
+	tree, _ := newMerkleTree(hashes)
+	return tree.Root.Hash
 }
