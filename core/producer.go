@@ -1,7 +1,6 @@
 package core
 
 import (
-	"github.com/DSiSc/producer/common"
 	"github.com/DSiSc/producer/config"
 	"github.com/DSiSc/producer/core/timer"
 	"github.com/DSiSc/txpool/common/log"
@@ -10,7 +9,7 @@ import (
 )
 
 type Producer interface {
-	MakeBlock() (*common.Block, error)
+	MakeBlock() interface{}
 }
 
 const (
