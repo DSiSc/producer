@@ -1,6 +1,7 @@
 package leveldbstore
 
 import (
+	"github.com/DSiSc/txpool/common/log"
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/syndtr/goleveldb/leveldb/errors"
 	"github.com/syndtr/goleveldb/leveldb/filter"
@@ -22,14 +23,15 @@ func NewLevelDBStore(file string) (*LevelDBStore, error) {
 		NoSync: false,
 		Filter: filter.NewBloomFilter(BITSPERKEY),
 	}
-
 	db, err := leveldb.OpenFile(file, &o)
 
 	if _, corrupted := err.(*errors.ErrCorrupted); corrupted {
+		log.Error("Recover db file.")
 		db, err = leveldb.RecoverFile(file, nil)
 	}
 
 	if err != nil {
+		log.Error("Open db file failed..")
 		return nil, err
 	}
 
@@ -70,4 +72,9 @@ func (self *LevelDBStore) Delete(key []byte) error {
 func (self *LevelDBStore) Close() error {
 	err := self.db.Close()
 	return err
+}
+
+//BatchPut put a key-value pair to leveldb batch
+func (self *LevelDBStore) BatchPut(key []byte, value []byte) {
+	self.batch.Put(key, value)
 }

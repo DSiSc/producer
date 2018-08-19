@@ -3,6 +3,7 @@ package common
 import (
 	"bytes"
 	"crypto/sha256"
+	"errors"
 	"github.com/DSiSc/txpool/common"
 	"io"
 )
@@ -59,4 +60,22 @@ func (h *Header) Hash() common.Hash {
 
 	h.hash = &hash
 	return hash
+}
+
+//Serialize the blockheader
+func (h *Header) Serialize(w io.Writer) error {
+	h.SerializeUnsigned(w)
+	err := WriteVarUint(w, uint64(len(h.SigData)))
+	if err != nil {
+		return errors.New("serialize sig pubkey length failed")
+	}
+
+	for _, sig := range h.SigData {
+		err = WriteVarBytes(w, sig)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

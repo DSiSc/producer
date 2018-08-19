@@ -19,7 +19,7 @@ type merkleTree struct {
 	Root  *merkleTreeNode
 }
 
-func Serialize(w io.Writer, u *common.Hash) error {
+func SerializeHash(w io.Writer, u *common.Hash) error {
 	_, err := w.Write(u[:])
 	return err
 }
@@ -69,7 +69,7 @@ func levelUp(nodes []*merkleTreeNode) []*merkleTreeNode {
 func doubleSha256(s []common.Hash) common.Hash {
 	b := new(bytes.Buffer)
 	for _, d := range s {
-		Serialize(b, &d)
+		SerializeHash(b, &d)
 	}
 	temp := sha256.Sum256(b.Bytes())
 	f := sha256.Sum256(temp[:])

@@ -43,11 +43,3 @@ func NewProducer(txpool *core.TxPool) (Producer, error) {
 	}
 	return producer, err
 }
-
-/*
-func main(){
-	st := config.ConfigAbsPath()
-	NewProducer(nil)
-	fmt.Printf("ddd %s.\n", st)
-}
-*/

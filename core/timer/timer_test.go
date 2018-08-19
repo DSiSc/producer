@@ -17,8 +17,11 @@ func Test_NewTimerProducer(t *testing.T) {
 
 func Test_Start(t *testing.T) {
 	assert := assert.New(t)
-	producer, _ := NewTimerProducer(nil, timer)
-	assert.NotNil(producer)
+	producer := &TimerProducer{
+		txpool: nil,
+		time:   timer,
+		ledger: nil,
+	}
 	go func() {
 		err := producer.Start()
 		assert.Nil(err)
