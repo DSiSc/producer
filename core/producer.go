@@ -18,17 +18,16 @@ const (
 	PRODUCER_TIMER = "timer"
 	PRODUCER_VOTER = "voter"
 	// Structure must matching with defination of config/config.json
-	ProducerSymbol     = "producer"
-	Policy             = "producer.policy"
-	PolicyTimer        = "producer.timer"
-	PolicyTimerTime    = "producer.timer.time"
-	ProducerConfigPath = "./../config/config.json"
+	ProducerSymbol  = "producer"
+	Policy          = "producer.policy"
+	PolicyTimer     = "producer.timer"
+	PolicyTimerTime = "producer.timer.time"
 )
 
 func NewProducer(txpool *core.TxPool) (Producer, error) {
 	var err error
 	var producer Producer
-	conf := config.New(ProducerConfigPath)
+	conf := config.New(config.ConfigAbsPath())
 	policy := conf.GetConfigItem(Policy).(string)
 	switch policy {
 	case PRODUCER_TIMER:
@@ -44,3 +43,11 @@ func NewProducer(txpool *core.TxPool) (Producer, error) {
 	}
 	return producer, err
 }
+
+/*
+func main(){
+	st := config.ConfigAbsPath()
+	NewProducer(nil)
+	fmt.Printf("ddd %s.\n", st)
+}
+*/

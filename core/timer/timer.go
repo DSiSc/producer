@@ -3,8 +3,11 @@ package timer
 
 import (
 	"github.com/DSiSc/producer/common"
+	"github.com/DSiSc/producer/config"
+	"github.com/DSiSc/producer/ledger/store"
+	//"github.com/DSiSc/producer/ledger/store"
+	"fmt"
 	txpool "github.com/DSiSc/txpool/common"
-	"github.com/DSiSc/txpool/common/log"
 	"github.com/DSiSc/txpool/core"
 	"time"
 )
@@ -16,8 +19,11 @@ var complete chan int
 const Version uint32 = 0
 
 type TimerProducer struct {
-	txpool *core.TxPool
-	time   uint64
+	txpool     *core.TxPool
+	time       uint64
+	blockStore *store.BlockStore
+	// blockStore *store.BlockStore
+	// leder ledger.Ledger
 }
 
 func NewTimerProducer(pool *core.TxPool, interval uint64) (*TimerProducer, error) {
@@ -25,6 +31,12 @@ func NewTimerProducer(pool *core.TxPool, interval uint64) (*TimerProducer, error
 		txpool: pool,
 		time:   interval,
 	}
+
+	blockStore, err := store.NewBlockStore(config.DBAbsPath(), false)
+	if nil != err && nil == blockStore {
+		return timerProducer, fmt.Errorf("New blcok store failed.")
+	}
+	timerProducer.blockStore = blockStore
 	return timerProducer, nil
 }
 
@@ -38,10 +50,9 @@ func (self *TimerProducer) Start() error {
 		defer timer.Stop()
 		select {
 		case <-timer.C:
-			_, err := self.makeBlock()
+			err := self.produceBlock()
 			if err != nil {
-				log.Error("Timer generate block failed.")
-				return err
+				return fmt.Errorf("Timer generate block failed.")
 			}
 		case <-complete:
 			return nil
@@ -54,6 +65,20 @@ func (self *TimerProducer) Stop() error {
 		close(complete)
 		complete = nil
 	}
+	return nil
+}
+
+func (self *TimerProducer) produceBlock() error {
+	_, err := self.makeBlock()
+	if err != nil {
+		return fmt.Errorf("makeBlock failed.")
+	}
+	/*
+		err = ledger.DefLedger.AddBlock(block)
+		if err != nil {
+			return fmt.Errorf("genBlock DefLedgerPid.RequestFuture Height:%d error:%s", block.Header.Height, err)
+		}
+	*/
 	return nil
 }
 

@@ -2,20 +2,48 @@ package config
 
 import (
 	"encoding/json"
+	"github.com/DSiSc/txpool/common/log"
 	"io/ioutil"
 	"path/filepath"
+	"runtime"
 	"strings"
 )
 
 var ConfigName = "config.json"
+var DefaultDataDir = "./config"
+
+type Config struct {
+	filePath string
+	maps     map[string]interface{}
+}
 
 func New(path string) Config {
 	return Config{filePath: path}
 }
 
-type Config struct {
-	filePath string
-	maps     map[string]interface{}
+// Resturn absolute path of config.json
+func ConfigAbsPath() string {
+	_, file, _, ok := runtime.Caller(1)
+	if !ok {
+		log.Error("Get config path failed.")
+		return file
+	}
+	keyString := "/github.com/DSiSc/producer/"
+	index := strings.LastIndex(file, keyString)
+	confAbsPath := strings.Join([]string{file[:index+len(keyString)], "config/config.json"}, "")
+	return confAbsPath
+}
+
+func DBAbsPath() string {
+	_, file, _, ok := runtime.Caller(1)
+	if !ok {
+		log.Error("Get config path failed.")
+		return file
+	}
+	keyString := "/github.com/DSiSc/producer/"
+	index := strings.LastIndex(file, keyString)
+	confAbsPath := strings.Join([]string{file[:index+len(keyString)], "config/data"}, "")
+	return confAbsPath
 }
 
 // Read the given json file.
