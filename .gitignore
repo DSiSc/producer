@@ -4,33 +4,22 @@
 # or operating system, you probably want to add a global ignore instead:
 #   git config --global core.excludesfile ~/.gitignore_global
 
-/tmp
-*/**/*un~
-*/**/*.test
-build/_vendor/pkg
+# govendor
+vendor/
 
-#*
-.#*
-*#
-*~
+# IDEs
 .project
 .settings
-
-# used by the Makefile
-/build/_workspace/
-/build/bin/
-/geth*.zip
-
-# travis
-profile.tmp
-profile.cov
-
-# IdeaIDE
 .idea
-
-# VS Code
 .vscode
 
-# LevelDB tempory
-config/data
+# May be used by the Makefile
+build/_workspace/
+build/_vendor/pkg
+build/bin/
+
+# travis, codecov
+profile.tmp
+profile.cov
+coverage.txt
 
