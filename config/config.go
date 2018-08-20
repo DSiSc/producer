@@ -28,9 +28,9 @@ func ConfigAbsPath() string {
 		log.Error("Get config path failed.")
 		return file
 	}
-	keyString := "/github.com/DSiSc/producer/"
+	keyString := "/github.com/DSiSc/"
 	index := strings.LastIndex(file, keyString)
-	confAbsPath := strings.Join([]string{file[:index+len(keyString)], "config/config.json"}, "")
+	confAbsPath := strings.Join([]string{file[:index+len(keyString)], "producer/config/config.json"}, "")
 	return confAbsPath
 }
 
