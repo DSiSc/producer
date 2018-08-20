@@ -28,24 +28,14 @@ type DBStore interface {
 
 // Block store save the data of block & transaction
 type BlockStore struct {
-	cache       *BlockCache // The cache of block, if have.
-	enableCache bool        //Is enable lru cache
 	dbDir       string      // The path of store file
 	store       DBStore     // Block store handler
 }
 
 // NewBlockStore return the block store instance
-func NewBlockStore(dbDir string, enableCache bool) (*BlockStore, error) {
-	var cache *BlockCache
+func NewBlockStore(dbDir string) (*BlockStore, error) {
 	var store DBStore
 	var err error
-	if enableCache {
-		cache, err = NewBlockCache()
-		if err != nil {
-			log.Error("Create block cache failed..")
-			return nil, fmt.Errorf("NewBlockCache error %s", err)
-		}
-	}
 
 	conf := config.New(config.ConfigAbsPath())
 	plugin := conf.GetConfigItem(DB_STORE_PLUGIN).(string)
@@ -62,18 +52,13 @@ func NewBlockStore(dbDir string, enableCache bool) (*BlockStore, error) {
 
 	blockStore := &BlockStore{
 		dbDir:       dbDir,
-		enableCache: enableCache,
 		store:       store,
-		cache:       cache,
 	}
 	return blockStore, nil
 }
 
 //SaveTransaction persist transaction to store
 func (this *BlockStore) SaveTransaction(tx *types.Transaction, height uint32) error {
-	if this.enableCache {
-		this.cache.AddTransaction(tx, height)
-	}
 	return this.putTransaction(tx, height)
 }
 
@@ -125,19 +110,17 @@ func (this *BlockStore) getHeaderKey(blockHash txpool.Hash) []byte {
 
 // SaveBlock persist block to store
 func (this *BlockStore) SaveBlock(block *common.Block) error {
-	if this.enableCache {
-		this.cache.AddBlock(block)
-	}
-
 	blockHeight := block.Header.Height
 	err := this.SaveHeader(block, 0)
 	if err != nil {
+		log.Error("Save hender failed.")
 		return fmt.Errorf("SaveHeader error %s", err)
 	}
 	for _, tx := range block.Transactions {
 		err = this.SaveTransaction(tx, blockHeight)
 		if err != nil {
 			txHash := tx.Hash()
+			log.Error("Save transaction failed.")
 			return fmt.Errorf("SaveTransaction block height %d tx %s err %s", blockHeight, txHash, err)
 		}
 	}

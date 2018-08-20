@@ -1,4 +1,4 @@
-package timer
+package policy
 
 import (
 	"github.com/stretchr/testify/assert"

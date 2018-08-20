@@ -1,5 +1,5 @@
 // Implemsnt of producer which make block by fixed time
-package timer
+package policy
 
 import (
 	"fmt"

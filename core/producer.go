@@ -2,7 +2,7 @@ package core
 
 import (
 	"github.com/DSiSc/producer/config"
-	"github.com/DSiSc/producer/core/timer"
+	"github.com/DSiSc/producer/core/policy"
 	"github.com/DSiSc/txpool/common/log"
 	"github.com/DSiSc/txpool/core"
 	"strconv"
@@ -28,8 +28,8 @@ func NewProducer(txpool *core.TxPool) (Producer, error) {
 	var err error
 	var producer Producer
 	conf := config.New(config.ConfigAbsPath())
-	policy := conf.GetConfigItem(Policy).(string)
-	switch policy {
+	producerPolicy := conf.GetConfigItem(Policy).(string)
+	switch producerPolicy {
 	case PRODUCER_TIMER:
 		log.Info("Get timer policy producer.")
 		time, err := strconv.ParseUint(conf.GetConfigItem(PolicyTimerTime).(string), 10, 64)
@@ -37,7 +37,7 @@ func NewProducer(txpool *core.TxPool) (Producer, error) {
 			log.Error("Get time section for timer producer failed.")
 			return nil, err
 		}
-		producer, err = timer.NewTimerProducer(txpool, time)
+		producer, err = policy.NewTimerProducer(txpool, time)
 	default:
 		log.Error("Now, we only support timer policy producer.")
 	}
