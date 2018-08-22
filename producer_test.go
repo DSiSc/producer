@@ -1,4 +1,4 @@
-package core
+package producer
 
 import (
 	"github.com/DSiSc/producer/config"

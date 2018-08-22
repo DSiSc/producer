@@ -1,12 +1,12 @@
-package core
+package producer
 
 import (
 	"fmt"
 	"github.com/DSiSc/ledger"
 	"github.com/DSiSc/producer/config"
-	"github.com/DSiSc/producer/core/policy"
+	"github.com/DSiSc/producer/policy"
 	"github.com/DSiSc/txpool/common/log"
-	"github.com/DSiSc/txpool/core"
+	"github.com/DSiSc/txpool"
 )
 
 type Producer interface {
@@ -25,7 +25,7 @@ const (
 	PolicyTimerTime = "producer.timer.time"
 )
 
-func NewProducer(conf *config.ProducerConf, txpool *core.TxPool, ledger *ledger.Ledger) (Producer, error) {
+func NewProducer(conf *config.ProducerConf, txpool *txpool.TxPool, ledger *ledger.Ledger) (Producer, error) {
 	var err error
 	var producer Producer
 	producerPolicy := conf.PolicyName

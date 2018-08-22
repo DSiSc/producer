@@ -2,7 +2,7 @@ package common
 
 import (
 	"github.com/DSiSc/txpool/common"
-	"github.com/DSiSc/txpool/core/types"
+	"github.com/DSiSc/txpool/types"
 )
 
 type Block struct {

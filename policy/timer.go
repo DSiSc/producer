@@ -7,7 +7,7 @@ import (
 	"github.com/DSiSc/producer/common"
 	types "github.com/DSiSc/txpool/common"
 	"github.com/DSiSc/txpool/common/log"
-	"github.com/DSiSc/txpool/core"
+	"github.com/DSiSc/txpool"
 	"time"
 )
 
@@ -18,12 +18,12 @@ var complete chan int
 const Version uint32 = 0
 
 type TimerProducer struct {
-	txpool *core.TxPool
+	txpool *txpool.TxPool
 	time   uint64
 	ledger *ledger.Ledger
 }
 
-func NewTimerProducer(interval uint64, pool *core.TxPool, ledger *ledger.Ledger) (*TimerProducer, error) {
+func NewTimerProducer(interval uint64, pool *txpool.TxPool, ledger *ledger.Ledger) (*TimerProducer, error) {
 	timerProducer := &TimerProducer{
 		txpool: pool,
 		time:   interval,
