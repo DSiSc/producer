@@ -1,6 +1,6 @@
 package config
 
-type ProducerConf struct {
+type ProducerConfig struct {
 	PolicyName    string
 	PolicyContext ProducerPolicy
 }

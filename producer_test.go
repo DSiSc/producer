@@ -7,8 +7,8 @@ import (
 	"testing"
 )
 
-func mock_NewProducerConf(time uint, num uint) config.ProducerConf {
-	return config.ProducerConf{
+func mock_NewProducerConfig(time uint, num uint) config.ProducerConfig {
+	return config.ProducerConfig{
 		PolicyName: "timer",
 		PolicyContext: config.ProducerPolicy{
 			Timer: uint64(time),
@@ -19,7 +19,7 @@ func mock_NewProducerConf(time uint, num uint) config.ProducerConf {
 
 func Test_NewProducer(t *testing.T) {
 	assert := assert.New(t)
-	conf := mock_NewProducerConf(10, 0)
+	conf := mock_NewProducerConfig(10, 0)
 
 	producer, err := NewProducer(&conf, nil, nil)
 	assert.Nil(err)

@@ -25,7 +25,7 @@ const (
 	PolicyTimerTime = "producer.timer.time"
 )
 
-func NewProducer(conf *config.ProducerConf, txpool *txpool.TxPool, ledger *ledger.Ledger) (Producer, error) {
+func NewProducer(conf *config.ProducerConfig, txpool *txpool.TxPool, ledger *ledger.Ledger) (Producer, error) {
 	var err error
 	var producer Producer
 	producerPolicy := conf.PolicyName
