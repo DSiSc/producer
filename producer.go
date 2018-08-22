@@ -5,8 +5,8 @@ import (
 	"github.com/DSiSc/ledger"
 	"github.com/DSiSc/producer/config"
 	"github.com/DSiSc/producer/policy"
-	"github.com/DSiSc/txpool/common/log"
 	"github.com/DSiSc/txpool"
+	"github.com/DSiSc/txpool/common/log"
 )
 
 type Producer interface {
@@ -31,11 +31,11 @@ func NewProducer(conf *config.ProducerConf, txpool *txpool.TxPool, ledger *ledge
 	producerPolicy := conf.PolicyName
 	switch producerPolicy {
 	case PRODUCER_TIMER:
-		log.Info("Get timer policy producer.")
+		log.Info("Producer policy is timer.")
 		time := conf.PolicyContext.Timer
 		if 0 >= time {
-			log.Error("Timer section invalid.")
-			return nil, fmt.Errorf("Timer section invalid.")
+			log.Error("Time section of timer is invalid.")
+			return nil, fmt.Errorf("Time section of timer is invalid.")
 		}
 		producer, err = policy.NewTimerProducer(time, txpool, ledger)
 	default:

@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"errors"
-	"github.com/DSiSc/txpool/common"
 	ledger_c "github.com/DSiSc/ledger/common"
+	"github.com/DSiSc/txpool/common"
 	"io"
 )
 
