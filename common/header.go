@@ -21,28 +21,28 @@ type Header struct {
 }
 
 //Serialize the blockheader data without program
-func (bd *Header) SerializeUnsigned(w io.Writer) error {
-	err := ledger_c.WriteUint32(w, bd.Version)
+func (h *Header) SerializeUnsigned(w io.Writer) error {
+	err := ledger_c.WriteUint32(w, h.Version)
 	if err != nil {
 		return err
 	}
-	err = bd.PrevBlockHash.Serialize(w)
+	err = h.PrevBlockHash.Serialize(w)
 	if err != nil {
 		return err
 	}
-	err = bd.TransactionsRoot.Serialize(w)
+	err = h.TransactionsRoot.Serialize(w)
 	if err != nil {
 		return err
 	}
-	err = bd.BlockRoot.Serialize(w)
+	err = h.BlockRoot.Serialize(w)
 	if err != nil {
 		return err
 	}
-	err = ledger_c.WriteUint32(w, bd.Timestamp)
+	err = ledger_c.WriteUint32(w, h.Timestamp)
 	if err != nil {
 		return err
 	}
-	err = ledger_c.WriteUint32(w, bd.Height)
+	err = ledger_c.WriteUint32(w, h.Height)
 	if err != nil {
 		return err
 	}
