@@ -9,7 +9,7 @@ var timer uint64 = 10
 
 func Test_NewTimerProducer(t *testing.T) {
 	assert := assert.New(t)
-	producer, err := NewTimerProducer(nil, timer)
+	producer, err := NewTimerProducer(timer, nil, nil)
 	assert.NotNil(producer)
 	assert.Nil(err)
 	assert.Equal(timer, producer.time, "they should not be equal")

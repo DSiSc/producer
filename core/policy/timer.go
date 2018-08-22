@@ -3,9 +3,8 @@ package policy
 
 import (
 	"fmt"
+	"github.com/DSiSc/ledger"
 	"github.com/DSiSc/producer/common"
-	"github.com/DSiSc/producer/config"
-	"github.com/DSiSc/producer/ledger"
 	types "github.com/DSiSc/txpool/common"
 	"github.com/DSiSc/txpool/common/log"
 	"github.com/DSiSc/txpool/core"
@@ -24,17 +23,12 @@ type TimerProducer struct {
 	ledger *ledger.Ledger
 }
 
-func NewTimerProducer(pool *core.TxPool, interval uint64) (*TimerProducer, error) {
+func NewTimerProducer(interval uint64, pool *core.TxPool, ledger *ledger.Ledger) (*TimerProducer, error) {
 	timerProducer := &TimerProducer{
 		txpool: pool,
 		time:   interval,
 	}
-	ledgerStore, err := ledger.NewLedger(config.DBAbsPath())
-	if nil != err && nil == ledgerStore {
-		log.Error("Create a ledger failed.")
-		return nil, fmt.Errorf("New ledger failed.")
-	}
-	timerProducer.ledger = ledgerStore
+	timerProducer.ledger = ledger
 	return timerProducer, nil
 }
 

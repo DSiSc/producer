@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"errors"
 	"github.com/DSiSc/txpool/common"
+	ledger_c "github.com/DSiSc/ledger/common"
 	"io"
 )
 
@@ -21,7 +22,7 @@ type Header struct {
 
 //Serialize the blockheader data without program
 func (bd *Header) SerializeUnsigned(w io.Writer) error {
-	err := WriteUint32(w, bd.Version)
+	err := ledger_c.WriteUint32(w, bd.Version)
 	if err != nil {
 		return err
 	}
@@ -37,11 +38,11 @@ func (bd *Header) SerializeUnsigned(w io.Writer) error {
 	if err != nil {
 		return err
 	}
-	err = WriteUint32(w, bd.Timestamp)
+	err = ledger_c.WriteUint32(w, bd.Timestamp)
 	if err != nil {
 		return err
 	}
-	err = WriteUint32(w, bd.Height)
+	err = ledger_c.WriteUint32(w, bd.Height)
 	if err != nil {
 		return err
 	}
@@ -65,13 +66,13 @@ func (h *Header) Hash() common.Hash {
 //Serialize the blockheader
 func (h *Header) Serialize(w io.Writer) error {
 	h.SerializeUnsigned(w)
-	err := WriteVarUint(w, uint64(len(h.SigData)))
+	err := ledger_c.WriteVarUint(w, uint64(len(h.SigData)))
 	if err != nil {
 		return errors.New("serialize sig pubkey length failed")
 	}
 
 	for _, sig := range h.SigData {
-		err = WriteVarBytes(w, sig)
+		err = ledger_c.WriteVarBytes(w, sig)
 		if err != nil {
 			return err
 		}

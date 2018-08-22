@@ -1,15 +1,27 @@
 package core
 
 import (
+	"github.com/DSiSc/producer/config"
 	"github.com/stretchr/testify/assert"
 	"reflect"
 	"testing"
 )
 
+func mock_NewProducerConf(time uint, num uint) config.ProducerConf {
+	return config.ProducerConf{
+		PolicyName: "timer",
+		PolicyContext: config.ProducerPolicy{
+			Timer: uint64(time),
+			Num:   uint64(num),
+		},
+	}
+}
+
 func Test_NewProducer(t *testing.T) {
 	assert := assert.New(t)
+	conf := mock_NewProducerConf(10, 0)
 
-	producer, err := NewProducer(nil)
+	producer, err := NewProducer(&conf, nil, nil)
 	assert.Nil(err)
 
 	p := reflect.TypeOf(producer)
