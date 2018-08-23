@@ -4,12 +4,12 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"errors"
-	"github.com/DSiSc/txpool/common"
+	"github.com/DSiSc/craft/types"
 	"io"
 )
 
 type merkleTreeNode struct {
-	Hash  common.Hash
+	Hash  types.Hash
 	Left  *merkleTreeNode
 	Right *merkleTreeNode
 }
@@ -19,13 +19,13 @@ type merkleTree struct {
 	Root  *merkleTreeNode
 }
 
-func SerializeHash(w io.Writer, u *common.Hash) error {
+func SerializeHash(w io.Writer, u *types.Hash) error {
 	_, err := w.Write(u[:])
 	return err
 }
 
 //Generate the leaves nodes
-func generateLeaves(hashes []common.Hash) []*merkleTreeNode {
+func generateLeaves(hashes []types.Hash) []*merkleTreeNode {
 	var leaves []*merkleTreeNode
 	for _, d := range hashes {
 		node := &merkleTreeNode{
@@ -40,7 +40,7 @@ func generateLeaves(hashes []common.Hash) []*merkleTreeNode {
 func levelUp(nodes []*merkleTreeNode) []*merkleTreeNode {
 	var nextLevel []*merkleTreeNode
 	for i := 0; i < len(nodes)/2; i++ {
-		var data []common.Hash
+		var data []types.Hash
 		data = append(data, nodes[i*2].Hash)
 		data = append(data, nodes[i*2+1].Hash)
 		hash := doubleSha256(data)
@@ -52,7 +52,7 @@ func levelUp(nodes []*merkleTreeNode) []*merkleTreeNode {
 		nextLevel = append(nextLevel, node)
 	}
 	if len(nodes)%2 == 1 {
-		var data []common.Hash
+		var data []types.Hash
 		data = append(data, nodes[len(nodes)-1].Hash)
 		data = append(data, nodes[len(nodes)-1].Hash)
 		hash := doubleSha256(data)
@@ -66,17 +66,17 @@ func levelUp(nodes []*merkleTreeNode) []*merkleTreeNode {
 	return nextLevel
 }
 
-func doubleSha256(s []common.Hash) common.Hash {
+func doubleSha256(s []types.Hash) types.Hash {
 	b := new(bytes.Buffer)
 	for _, d := range s {
 		SerializeHash(b, &d)
 	}
 	temp := sha256.Sum256(b.Bytes())
 	f := sha256.Sum256(temp[:])
-	return common.Hash(f)
+	return types.Hash(f)
 }
 
-func newMerkleTree(hashes []common.Hash) (*merkleTree, error) {
+func newMerkleTree(hashes []types.Hash) (*merkleTree, error) {
 	if len(hashes) == 0 {
 		return nil, errors.New("NewMerkleTree input no item error.")
 	}
@@ -95,9 +95,9 @@ func newMerkleTree(hashes []common.Hash) (*merkleTree, error) {
 	return mt, nil
 }
 
-func ComputeMerkleRoot(hashes []common.Hash) common.Hash {
+func ComputeMerkleRoot(hashes []types.Hash) types.Hash {
 	if len(hashes) == 0 {
-		return common.Hash{}
+		return types.Hash{}
 	}
 	if len(hashes) == 1 {
 		return hashes[0]
