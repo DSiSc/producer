@@ -30,3 +30,11 @@ func Test_Start(t *testing.T) {
 	err := producer.Stop()
 	assert.Nil(err)
 }
+
+func Test_GetTime(t *testing.T) {
+	assert := assert.New(t)
+	producer, err := NewTimerProducer(timer, nil, nil)
+	assert.Nil(err)
+	time := producer.GetTime()
+	assert.Equal(time, timer, "they should not be equal")
+}
