@@ -11,12 +11,12 @@ import (
 )
 
 type Producer struct {
-	txpool *txpool.TxPool
+	txpool txpool.TxsPool
 	time   uint64
 	ledger *ledger.Ledger
 }
 
-func NewProducer(pool *txpool.TxPool, ledger *ledger.Ledger) (*Producer, error) {
+func NewProducer(pool txpool.TxsPool, ledger *ledger.Ledger) (*Producer, error) {
 	return &Producer{
 		txpool: pool,
 		ledger: ledger,
