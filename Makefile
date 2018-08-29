@@ -71,7 +71,6 @@ unit-test:
 test: vet unit-test
 
 get-tools:
-        # official tools
 	go get -u golang.org/x/lint/golint
 	@# go get -u golang.org/x/tools/cmd/gotype
 	@# go get -u golang.org/x/tools/cmd/goimports
@@ -80,14 +79,15 @@ get-tools:
 	@# go get -u golang.org/x/tools/cmd/gomvpkg
 
         # thirdparty tools
-	go get -u github.com/kardianos/govendor
+	@# go get -u github.com/kardianos/govendor
 	go get -u github.com/stretchr/testify
 	@# go get -u github.com/axw/gocov/...
 	@# go get -u github.com/client9/misspell/cmd/misspell
 
 fetch-deps: get-tools
-	@echo "Run govendor fetch for deps..."
-	govendor init && govendor fetch +m 
+	@echo "Run go get to fetch deps..."
+	go get -u github.com/DSiSc/blockchain
+	go get -u github.com/DSiSc/txpool
 
 ## tools & deps
 devenv: get-tools fetch-deps

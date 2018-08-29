@@ -2,9 +2,8 @@ package producer
 
 import (
 	"fmt"
-	"github.com/DSiSc/blockstore"
+	"github.com/DSiSc/blockchain"
 	"github.com/DSiSc/craft/types"
-	"github.com/DSiSc/producer/common"
 	"github.com/DSiSc/txpool"
 	"github.com/DSiSc/txpool/log"
 	"time"
@@ -13,13 +12,13 @@ import (
 type Producer struct {
 	txpool     txpool.TxsPool
 	time       uint64
-	blockstore blockstore.BlockStoreAPI
+	blockstore *blockchain.BlockChain
 }
 
-func NewProducer(pool txpool.TxsPool, blockstore blockstore.BlockStoreAPI) (*Producer, error) {
+func NewProducer(pool txpool.TxsPool, blockchain *blockchain.BlockChain) (*Producer, error) {
 	return &Producer{
 		txpool:     pool,
-		blockstore: blockstore,
+		blockstore: blockchain,
 	}, nil
 }
 
@@ -38,7 +37,7 @@ func (self *Producer) assembleBlock() (*types.Block, error) {
 	for _, t := range txs {
 		txHash = append(txHash, t.Hash())
 	}
-	txRoot := common.ComputeMerkleRoot(txHash)
+	txRoot := types.ComputeMerkleRoot(txHash)
 	header := &types.Header{
 		TxRoot:    txRoot,
 		Timestamp: uint64(time.Now().Unix()),
