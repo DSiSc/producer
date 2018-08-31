@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/DSiSc/blockchain"
 	"github.com/DSiSc/craft/types"
+	"github.com/DSiSc/producer/tools"
 	"github.com/DSiSc/txpool"
 	"github.com/DSiSc/txpool/log"
 	"time"
@@ -37,7 +38,7 @@ func (self *Producer) assembleBlock() (*types.Block, error) {
 	for _, t := range txs {
 		txHash = append(txHash, t.Hash())
 	}
-	txRoot := types.ComputeMerkleRoot(txHash)
+	txRoot := tools.ComputeMerkleRoot(txHash)
 	header := &types.Header{
 		TxRoot:    txRoot,
 		Timestamp: uint64(time.Now().Unix()),
