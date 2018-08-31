@@ -1,3 +1,6 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
 *.sh text eol=lf
 *.go text eol=lf
 *.yaml text eol=lf
@@ -8,4 +11,5 @@
 *.py text eol=lf
 *.js text eol=lf
 *.txt text eol=lf
+*.sol linguist-language=Solidity
 LICENSE text eol=lf
