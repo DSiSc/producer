@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/DSiSc/blockchain"
 	"github.com/DSiSc/craft/types"
+	"github.com/DSiSc/producer/common"
 	"github.com/DSiSc/producer/tools"
 	"github.com/DSiSc/txpool"
 	"github.com/DSiSc/txpool/log"
@@ -36,7 +37,7 @@ func (self *Producer) assembleBlock() (*types.Block, error) {
 	txs := self.txpool.GetTxs()
 	txHash := make([]types.Hash, 0, len(txs))
 	for _, t := range txs {
-		txHash = append(txHash, t.Hash())
+		txHash = append(txHash, common.TxHash(t))
 	}
 	txRoot := tools.ComputeMerkleRoot(txHash)
 	header := &types.Header{
