@@ -21,6 +21,13 @@ func TxHash(tx *types.Transaction) (hash types.Hash) {
 	return
 }
 
+func BlockHash(block *types.Block) (hash types.Hash) {
+	jsonByte, _ := json.Marshal(block)
+	sumByte := Sum(jsonByte)
+	copy(hash[:], sumByte)
+	return
+}
+
 func CopyBytes(b []byte) (copiedBytes []byte) {
 	if b == nil {
 		return nil

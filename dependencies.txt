@@ -8,3 +8,5 @@ github.com/DSiSc/ledger:master
 github.com/DSiSc/blockchain:master
 github.com/DSiSc/blockstore:master
 github.com/DSiSc/statedb-NG:master
+github.com/DSiSc/validator:master
+
