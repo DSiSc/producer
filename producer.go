@@ -1,6 +1,7 @@
 package producer
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/DSiSc/blockchain"
 	"github.com/DSiSc/craft/types"
@@ -92,10 +93,20 @@ func (self *Producer) verifyBlock(block *types.Block) error {
 
 func (self *Producer) signBlock(block *types.Block) error {
 	hash := common.BlockHash(block)
-	sig, err1 := signature.Sign(self.account, hash[:])
-	if nil != err1 {
-		return fmt.Errorf("[Signature],Sign error:%s.", err1)
+	sign, err := signature.Sign(self.account, hash[:])
+	if nil != err {
+		return fmt.Errorf("[Signature],Sign error:%s.", err)
 	}
-	block.Header.SigData = append(block.Header.SigData, sig)
+
+	notSigned := true
+	for _, value := range block.Header.SigData {
+		if bytes.Equal(value, sign) {
+			notSigned = false
+			log.Warn("Duplicate sign")
+		}
+	}
+	if notSigned {
+		block.Header.SigData = append(block.Header.SigData, sign)
+	}
 	return nil
 }
