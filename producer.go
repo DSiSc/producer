@@ -6,10 +6,10 @@ import (
 	"github.com/DSiSc/craft/types"
 	"github.com/DSiSc/producer/common"
 	"github.com/DSiSc/producer/tools"
-	"github.com/DSiSc/producer/tools/account"
-	"github.com/DSiSc/producer/tools/signature"
 	"github.com/DSiSc/txpool"
 	"github.com/DSiSc/txpool/log"
+	"github.com/DSiSc/validator/tools/account"
+	"github.com/DSiSc/validator/tools/signature"
 	"github.com/DSiSc/validator/worker"
 	"time"
 )
@@ -20,13 +20,19 @@ type Producer struct {
 	blockstore *blockchain.BlockChain
 	// TODO: we support many workers to promote verification speed  in the future
 	workers *worker.Worker
-	Account *account.Account
+	account *account.Account
 }
 
-func NewProducer(pool txpool.TxsPool, blockchain *blockchain.BlockChain) *Producer {
+func NewProducer(pool txpool.TxsPool, Account *account.Account) *Producer {
+	blockstore, err := blockchain.NewLatestStateBlockChain()
+	if nil != err {
+		log.Error("Get latest state block failed.")
+		return nil
+	}
 	return &Producer{
 		txpool:     pool,
-		blockstore: blockchain,
+		blockstore: blockstore,
+		account:    Account,
 	}
 }
 
@@ -62,7 +68,7 @@ func (self *Producer) assembleBlock() (*types.Block, error) {
 	header := &types.Header{
 		TxRoot:    txRoot,
 		Timestamp: uint64(time.Now().Unix()),
-		Height:    1,
+		Height:    self.blockstore.GetCurrentBlockHeight() + 1,
 	}
 	block := &types.Block{
 		Header:       header,
@@ -86,7 +92,7 @@ func (self *Producer) verifyBlock(block *types.Block) error {
 
 func (self *Producer) signBlock(block *types.Block) error {
 	hash := common.BlockHash(block)
-	sig, err1 := signature.Sign(self.Account, hash[:])
+	sig, err1 := signature.Sign(self.account, hash[:])
 	if nil != err1 {
 		return fmt.Errorf("[Signature],Sign error:%s.", err1)
 	}
