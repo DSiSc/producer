@@ -8,7 +8,6 @@ import (
 
 func Test_NewProducer(t *testing.T) {
 	assert := assert.New(t)
-
 	producer := NewProducer(nil, nil)
 	assert.Nil(producer)
 }

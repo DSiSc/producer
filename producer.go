@@ -66,10 +66,14 @@ func (self *Producer) assembleBlock() (*types.Block, error) {
 		txHash = append(txHash, common.TxHash(t))
 	}
 	txRoot := tools.ComputeMerkleRoot(txHash)
+	currentBlock := self.blockstore.GetCurrentBlock()
 	header := &types.Header{
-		TxRoot:    txRoot,
-		Timestamp: uint64(time.Now().Unix()),
-		Height:    self.blockstore.GetCurrentBlockHeight() + 1,
+		TxRoot:        txRoot,
+		Coinbase:      self.account.Address,
+		PrevBlockHash: common.BlockHash(currentBlock),
+		Timestamp:     uint64(time.Now().Unix()),
+		Height:        self.blockstore.GetCurrentBlockHeight() + 1,
+		StateRoot:     self.blockstore.IntermediateRoot(false),
 	}
 	block := &types.Block{
 		Header:       header,
@@ -99,14 +103,14 @@ func (self *Producer) signBlock(block *types.Block) error {
 	}
 
 	notSigned := true
-	for _, value := range block.Header.SigData {
+	for _, value := range block.SigData {
 		if bytes.Equal(value, sign) {
 			notSigned = false
 			log.Warn("Duplicate sign")
 		}
 	}
 	if notSigned {
-		block.Header.SigData = append(block.Header.SigData, sign)
+		block.SigData = append(block.SigData, sign)
 	}
 	return nil
 }
