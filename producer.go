@@ -79,6 +79,7 @@ func (self *Producer) assembleBlock() (*types.Block, error) {
 		Header:       header,
 		Transactions: txs,
 	}
+	block.HeaderHash = common.HeaderHash(block)
 	return block, nil
 }
 
@@ -96,8 +97,7 @@ func (self *Producer) verifyBlock(block *types.Block) error {
 }
 
 func (self *Producer) signBlock(block *types.Block) error {
-	hash := common.BlockHash(block)
-	sign, err := signature.Sign(self.account, hash[:])
+	sign, err := signature.Sign(self.account, block.HeaderHash[:])
 	if nil != err {
 		return fmt.Errorf("[Signature],Sign error:%s.", err)
 	}

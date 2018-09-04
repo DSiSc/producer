@@ -26,6 +26,14 @@ func BlockHash(block *types.Block) (hash types.Hash) {
 	copy(hash[:], sumByte)
 	return
 }
+func HeaderHash(block *types.Block) (hash types.Hash) {
+	header := block.Header
+	jsonByte, _ := json.Marshal(header)
+	sumByte := Sum(jsonByte)
+	copy(hash[:], sumByte)
+	block.HeaderHash = hash
+	return
+}
 
 func CopyBytes(b []byte) (copiedBytes []byte) {
 	if b == nil {
