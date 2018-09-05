@@ -16,36 +16,35 @@ import (
 )
 
 type Producer struct {
-	txpool     txpool.TxsPool
-	time       uint64
-	blockstore *blockchain.BlockChain
+	txpool txpool.TxsPool
+	time   uint64
 	// TODO: we support many workers to promote verification speed  in the future
 	workers *worker.Worker
 	account *account.Account
 }
 
 func NewProducer(pool txpool.TxsPool, Account *account.Account) *Producer {
-	blockstore, err := blockchain.NewLatestStateBlockChain()
-	if nil != err {
-		log.Error("Get latest state block failed.")
-		return nil
-	}
 	return &Producer{
-		txpool:     pool,
-		blockstore: blockstore,
-		account:    Account,
+		txpool:  pool,
+		account: Account,
 	}
 }
 
 func (self *Producer) MakeBlock() (*types.Block, error) {
+	// Get latest blockstore and statastore
+	blockStore, ok := blockchain.NewLatestStateBlockChain()
+	if nil != ok {
+		log.Error("Get NewLatestStateBlockChain failed.")
+		return nil, fmt.Errorf("NewLatestStateBlockChain failed.")
+	}
 	// make block
-	block, err := self.assembleBlock()
+	block, err := self.assembleBlock(blockStore)
 	if nil != err {
 		log.Error("Assemble block failed.")
 		return nil, fmt.Errorf("Assemble block failed.")
 	}
 	// verify block
-	err = self.verifyBlock(block)
+	err = self.verifyBlock(block, blockStore)
 	if nil != err {
 		log.Error("The block verified failed.")
 		return nil, err
@@ -59,21 +58,21 @@ func (self *Producer) MakeBlock() (*types.Block, error) {
 	return block, nil
 }
 
-func (self *Producer) assembleBlock() (*types.Block, error) {
+func (self *Producer) assembleBlock(blockStore *blockchain.BlockChain) (*types.Block, error) {
 	txs := self.txpool.GetTxs()
 	txHash := make([]types.Hash, 0, len(txs))
 	for _, t := range txs {
 		txHash = append(txHash, common.TxHash(t))
 	}
 	txRoot := tools.ComputeMerkleRoot(txHash)
-	currentBlock := self.blockstore.GetCurrentBlock()
+	currentBlock := blockStore.GetCurrentBlock()
 	header := &types.Header{
 		TxRoot:        txRoot,
 		Coinbase:      self.account.Address,
 		PrevBlockHash: common.BlockHash(currentBlock),
 		Timestamp:     uint64(time.Now().Unix()),
-		Height:        self.blockstore.GetCurrentBlockHeight() + 1,
-		StateRoot:     self.blockstore.IntermediateRoot(false),
+		Height:        blockStore.GetCurrentBlockHeight() + 1,
+		StateRoot:     blockStore.IntermediateRoot(false),
 	}
 	block := &types.Block{
 		Header:       header,
@@ -83,9 +82,9 @@ func (self *Producer) assembleBlock() (*types.Block, error) {
 	return block, nil
 }
 
-func (self *Producer) verifyBlock(block *types.Block) error {
+func (self *Producer) verifyBlock(block *types.Block, blockStore *blockchain.BlockChain) error {
 	// we support num of works to verify the block
-	work := worker.NewWorker(self.blockstore, block)
+	work := worker.NewWorker(blockStore, block)
 	// verify the block
 	err := work.VerifyBlock()
 	if err != nil {
