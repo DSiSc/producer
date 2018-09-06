@@ -8,7 +8,7 @@ import (
 	"github.com/DSiSc/producer/common"
 	"github.com/DSiSc/producer/tools"
 	"github.com/DSiSc/txpool"
-	"github.com/DSiSc/txpool/log"
+	"github.com/DSiSc/craft/log"
 	"github.com/DSiSc/validator/tools/account"
 	"github.com/DSiSc/validator/tools/signature"
 	"github.com/DSiSc/validator/worker"
