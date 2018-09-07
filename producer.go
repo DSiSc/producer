@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/DSiSc/blockchain"
+	"github.com/DSiSc/craft/log"
 	"github.com/DSiSc/craft/types"
 	"github.com/DSiSc/producer/common"
 	"github.com/DSiSc/producer/tools"
 	"github.com/DSiSc/txpool"
-	"github.com/DSiSc/craft/log"
 	"github.com/DSiSc/validator/tools/account"
 	"github.com/DSiSc/validator/tools/signature"
 	"github.com/DSiSc/validator/worker"
@@ -31,17 +31,17 @@ func NewProducer(pool txpool.TxsPool, Account *account.Account) *Producer {
 }
 
 func (self *Producer) MakeBlock() (*types.Block, error) {
-	// Get latest blockstore and statastore
+	// Get latest block store and state store
 	blockStore, ok := blockchain.NewLatestStateBlockChain()
 	if nil != ok {
 		log.Error("Get NewLatestStateBlockChain failed.")
-		return nil, fmt.Errorf("NewLatestStateBlockChain failed.")
+		return nil, fmt.Errorf("get NewLatestStateBlockChain failed")
 	}
 	// make block
 	block, err := self.assembleBlock(blockStore)
 	if nil != err {
 		log.Error("Assemble block failed.")
-		return nil, fmt.Errorf("Assemble block failed.")
+		return nil, fmt.Errorf("assemble block failed")
 	}
 	// verify block
 	err = self.verifyBlock(block, blockStore)
@@ -53,7 +53,7 @@ func (self *Producer) MakeBlock() (*types.Block, error) {
 	err = self.signBlock(block)
 	if nil != err {
 		log.Error("Sign block failed.")
-		return nil, fmt.Errorf("[Signature],Sign error:%s.", err)
+		return nil, fmt.Errorf("signature error:%v", err)
 	}
 	return block, nil
 }
@@ -88,7 +88,7 @@ func (self *Producer) verifyBlock(block *types.Block, blockStore *blockchain.Blo
 	// verify the block
 	err := work.VerifyBlock()
 	if err != nil {
-		log.Error("The block verified failed.")
+		log.Error("The block verified failed with err %v.", err)
 		return err
 	}
 	log.Info("The block verified success.")
@@ -98,7 +98,7 @@ func (self *Producer) verifyBlock(block *types.Block, blockStore *blockchain.Blo
 func (self *Producer) signBlock(block *types.Block) error {
 	sign, err := signature.Sign(self.account, block.HeaderHash[:])
 	if nil != err {
-		return fmt.Errorf("[Signature],Sign error:%s.", err)
+		return fmt.Errorf("signature error:%v", err)
 	}
 
 	notSigned := true
