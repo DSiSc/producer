@@ -55,6 +55,7 @@ func (self *Producer) MakeBlock() (*types.Block, error) {
 		log.Error("Sign block failed.")
 		return nil, fmt.Errorf("signature error:%v", err)
 	}
+	log.Info("Block %d, Header hash %x, make success", block.Header.Height, block.HeaderHash)
 	return block, nil
 }
 
@@ -63,6 +64,7 @@ func (self *Producer) assembleBlock(blockStore *blockchain.BlockChain) (*types.B
 	txHash := make([]types.Hash, 0, len(txs))
 	for _, t := range txs {
 		txHash = append(txHash, common.TxHash(t))
+		log.Info("Assemble tx %x to block.", common.TxHash(t))
 	}
 	txRoot := tools.ComputeMerkleRoot(txHash)
 	currentBlock := blockStore.GetCurrentBlock()
@@ -79,6 +81,7 @@ func (self *Producer) assembleBlock(blockStore *blockchain.BlockChain) (*types.B
 		Transactions: txs,
 	}
 	block.HeaderHash = common.HeaderHash(block)
+	log.Info("Block %d assemble success with %d txs and header hash %x.", block.Header.Height, len(txs), block.HeaderHash)
 	return block, nil
 }
 
@@ -88,10 +91,10 @@ func (self *Producer) verifyBlock(block *types.Block, blockStore *blockchain.Blo
 	// verify the block
 	err := work.VerifyBlock()
 	if err != nil {
-		log.Error("The block verified failed with err %v.", err)
+		log.Error("The block %d verified failed with err %v.", block.Header.Height, err)
 		return err
 	}
-	log.Info("The block verified success.")
+	log.Info("The block %d verified success.", block.Header.Height)
 	return nil
 }
 
