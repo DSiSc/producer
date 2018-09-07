@@ -56,6 +56,7 @@ func (self *Producer) MakeBlock() (*types.Block, error) {
 		return nil, fmt.Errorf("signature error:%v", err)
 	}
 	block.Header.StateRoot = blockStore.IntermediateRoot(false)
+	block.HeaderHash = common.HeaderHash(block)
 	log.Info("Block %d, Header hash %x, make success", block.Header.Height, block.HeaderHash)
 	return block, nil
 }
