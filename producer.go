@@ -55,6 +55,7 @@ func (self *Producer) MakeBlock() (*types.Block, error) {
 		log.Error("Sign block failed.")
 		return nil, fmt.Errorf("signature error:%v", err)
 	}
+	block.Header.StateRoot = blockStore.IntermediateRoot(false)
 	log.Info("Block %d, Header hash %x, make success", block.Header.Height, block.HeaderHash)
 	return block, nil
 }
@@ -74,7 +75,6 @@ func (self *Producer) assembleBlock(blockStore *blockchain.BlockChain) (*types.B
 		PrevBlockHash: common.BlockHash(currentBlock),
 		Timestamp:     uint64(time.Now().Unix()),
 		Height:        blockStore.GetCurrentBlockHeight() + 1,
-		StateRoot:     blockStore.IntermediateRoot(false),
 	}
 	block := &types.Block{
 		Header:       header,
