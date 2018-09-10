@@ -1,13 +1,18 @@
 package producer
 
 import (
+	"fmt"
 	"github.com/DSiSc/blockchain"
 	"github.com/DSiSc/blockchain/config"
 	"github.com/DSiSc/craft/types"
+	"github.com/DSiSc/monkey"
 	"github.com/DSiSc/txpool"
 	"github.com/DSiSc/validator/tools"
 	account2 "github.com/DSiSc/validator/tools/account"
+	"github.com/DSiSc/validator/tools/signature"
+	"github.com/DSiSc/validator/worker"
 	"github.com/stretchr/testify/assert"
+	"reflect"
 	"testing"
 )
 
@@ -94,4 +99,67 @@ func TestProducer_MakeBlock(t *testing.T) {
 	assert.Nil(err)
 	assert.NotNil(block)
 	assert.Equal(uint64(1), block.Header.Height)
+
+	monkey.Patch(blockchain.NewLatestStateBlockChain, func() (*blockchain.BlockChain, error) {
+		return nil, fmt.Errorf("mock error")
+	})
+	block, err = MockProducer.MakeBlock()
+	assert.NotNil(err)
+	assert.Nil(block)
+}
+
+func Test_verifyBlock(t *testing.T) {
+	assert := assert.New(t)
+	MockProducer := NewProducer(nil, nil)
+	var d *worker.Worker
+	block := &types.Block{
+		Header: &types.Header{
+			Height: 0,
+		},
+	}
+	monkey.PatchInstanceMethod(reflect.TypeOf(d), "VerifyBlock", func(*worker.Worker) error {
+		return fmt.Errorf("mock verify failed")
+	})
+	err := MockProducer.verifyBlock(block, nil)
+	assert.NotNil(err)
+
+	monkey.PatchInstanceMethod(reflect.TypeOf(d), "VerifyBlock", func(*worker.Worker) error {
+		return nil
+	})
+	err = MockProducer.verifyBlock(block, nil)
+	assert.Nil(err)
+}
+
+func Test_signBlock(t *testing.T) {
+	assert := assert.New(t)
+	MockProducer := NewProducer(nil, nil)
+	block := &types.Block{
+		SigData: [][]byte{
+			{0x1, 0x2, 0x3},
+		},
+	}
+	// test sign error
+	monkey.Patch(signature.Sign, func(signer signature.Signer, data []byte) ([]byte, error) {
+		except := []byte{0x1, 0x2, 0x4}
+		return except, fmt.Errorf("mock sign error")
+	})
+	err := MockProducer.signBlock(block)
+	assert.Equal(err, fmt.Errorf("signature error:mock sign error"))
+
+	// test new sign
+	monkey.Patch(signature.Sign, func(signer signature.Signer, data []byte) ([]byte, error) {
+		except := []byte{0x1, 0x2, 0x4}
+		return except, nil
+	})
+	err = MockProducer.signBlock(block)
+	assert.Nil(err)
+	assert.Equal(2, len(block.SigData))
+	// test duplicate sign
+	monkey.Patch(signature.Sign, func(signer signature.Signer, data []byte) ([]byte, error) {
+		except := []byte{0x1, 0x2, 0x3}
+		return except, nil
+	})
+	err = MockProducer.signBlock(block)
+	assert.Nil(err)
+	assert.Equal(2, len(block.SigData))
 }
