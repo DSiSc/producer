@@ -106,6 +106,7 @@ func TestProducer_MakeBlock(t *testing.T) {
 	block, err = MockProducer.MakeBlock()
 	assert.NotNil(err)
 	assert.Nil(block)
+	monkey.Unpatch(blockchain.NewLatestStateBlockChain)
 }
 
 func Test_verifyBlock(t *testing.T) {
@@ -128,6 +129,7 @@ func Test_verifyBlock(t *testing.T) {
 	})
 	err = MockProducer.verifyBlock(block, nil)
 	assert.Nil(err)
+	monkey.UnpatchInstanceMethod(reflect.TypeOf(d), "VerifyBlock")
 }
 
 func Test_signBlock(t *testing.T) {
@@ -162,4 +164,5 @@ func Test_signBlock(t *testing.T) {
 	err = MockProducer.signBlock(block)
 	assert.Nil(err)
 	assert.Equal(2, len(block.SigData))
+	monkey.Unpatch(signature.Sign)
 }
