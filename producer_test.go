@@ -90,23 +90,73 @@ func TestProducer_assembleBlock(t *testing.T) {
 
 func TestProducer_MakeBlock(t *testing.T) {
 	assert := assert.New(t)
-	txpool := txpool.NewTxPool(txpool.DefaultTxPoolConfig)
+	pool := txpool.NewTxPool(txpool.DefaultTxPoolConfig)
 	account := &account2.Account{
 		Address: tools.HexToAddress("333c3310824b7c685133f2bedb2ca4b8b4df633d"),
 	}
-	MockProducer := NewProducer(txpool, account)
-	block, err := MockProducer.MakeBlock()
-	assert.Nil(err)
-	assert.NotNil(block)
-	assert.Equal(uint64(1), block.Header.Height)
+	MockProducer := NewProducer(pool, account)
 
 	monkey.Patch(blockchain.NewLatestStateBlockChain, func() (*blockchain.BlockChain, error) {
-		return nil, fmt.Errorf("mock error")
+		return nil, fmt.Errorf("get block chain failed")
+	})
+	block, err := MockProducer.MakeBlock()
+	assert.Nil(block)
+	assert.Equal(err, fmt.Errorf("get NewLatestStateBlockChain failed"))
+
+	monkey.Patch(blockchain.NewLatestStateBlockChain, func() (*blockchain.BlockChain, error) {
+		return nil, nil
+	})
+	var b *blockchain.BlockChain
+	monkey.PatchInstanceMethod(reflect.TypeOf(b), "GetCurrentBlock", func(*blockchain.BlockChain) *types.Block {
+		return &types.Block{
+			Header: &types.Header{
+				Height: 0,
+			},
+			HeaderHash: types.Hash{
+				0xbd, 0x79, 0x1d, 0x4a, 0xf9, 0x64, 0x8f, 0xc3, 0x7f, 0x94, 0xeb, 0x36, 0x53, 0x19, 0xf6, 0xd0,
+				0xa9, 0x78, 0x9f, 0x9c, 0x22, 0x47, 0x2c, 0xa7, 0xa6, 0x12, 0xa9, 0xca, 0x4, 0x13, 0xc1, 0x4,
+			},
+		}
+	})
+	monkey.PatchInstanceMethod(reflect.TypeOf(b), "GetCurrentBlockHeight", func(*blockchain.BlockChain) uint64 {
+		return uint64(0)
+	})
+	monkey.PatchInstanceMethod(reflect.TypeOf(b), "IntermediateRoot", func(*blockchain.BlockChain, bool) types.Hash {
+		return types.Hash{
+			0xbd, 0x79, 0x1d, 0x4a, 0xf9, 0x64, 0x8f, 0xc3, 0x7f, 0x94, 0xeb, 0x36, 0x53, 0x19, 0xf6, 0xd0,
+			0xa9, 0x78, 0x9f, 0x9c, 0x22, 0x47, 0x2c, 0xa7, 0xa6, 0x12, 0xa9, 0xca, 0x4, 0x13, 0xc1, 0x4,
+		}
+	})
+
+	var c *worker.Worker
+	monkey.PatchInstanceMethod(reflect.TypeOf(c), "VerifyBlock", func(*worker.Worker) error {
+		return fmt.Errorf("verify failed")
+	})
+
+	block, err = MockProducer.MakeBlock()
+	assert.Nil(block)
+	assert.Equal(err, fmt.Errorf("verify failed"))
+
+	monkey.PatchInstanceMethod(reflect.TypeOf(c), "VerifyBlock", func(*worker.Worker) error {
+		return nil
+	})
+
+	monkey.Patch(signature.Sign, func(signer signature.Signer, data []byte) ([]byte, error) {
+		except := []byte{0x1, 0x2, 0x4}
+		return except, fmt.Errorf("mock sign error")
 	})
 	block, err = MockProducer.MakeBlock()
-	assert.NotNil(err)
 	assert.Nil(block)
-	monkey.Unpatch(blockchain.NewLatestStateBlockChain)
+	assert.Equal(fmt.Errorf("signature error: mock sign error"), err)
+
+	monkey.Patch(signature.Sign, func(signer signature.Signer, data []byte) ([]byte, error) {
+		except := []byte{0x1, 0x2, 0x4}
+		return except, nil
+	})
+	block, err = MockProducer.MakeBlock()
+	assert.NotNil(block)
+	assert.Nil(err)
+	assert.Equal(uint64(1), block.Header.Height)
 }
 
 func Test_verifyBlock(t *testing.T) {
@@ -136,8 +186,8 @@ func Test_signBlock(t *testing.T) {
 	assert := assert.New(t)
 	MockProducer := NewProducer(nil, nil)
 	block := &types.Block{
-		SigData: [][]byte{
-			{0x1, 0x2, 0x3},
+		Header: &types.Header{
+			SigData: [][]byte{{0x1, 0x2, 0x3}},
 		},
 	}
 	// test sign error
@@ -146,7 +196,7 @@ func Test_signBlock(t *testing.T) {
 		return except, fmt.Errorf("mock sign error")
 	})
 	err := MockProducer.signBlock(block)
-	assert.Equal(err, fmt.Errorf("signature error:mock sign error"))
+	assert.Equal(err, fmt.Errorf("mock sign error"))
 
 	// test new sign
 	monkey.Patch(signature.Sign, func(signer signature.Signer, data []byte) ([]byte, error) {
@@ -155,7 +205,7 @@ func Test_signBlock(t *testing.T) {
 	})
 	err = MockProducer.signBlock(block)
 	assert.Nil(err)
-	assert.Equal(2, len(block.SigData))
+	assert.Equal(2, len(block.Header.SigData))
 	// test duplicate sign
 	monkey.Patch(signature.Sign, func(signer signature.Signer, data []byte) ([]byte, error) {
 		except := []byte{0x1, 0x2, 0x3}
@@ -163,6 +213,6 @@ func Test_signBlock(t *testing.T) {
 	})
 	err = MockProducer.signBlock(block)
 	assert.Nil(err)
-	assert.Equal(2, len(block.SigData))
+	assert.Equal(2, len(block.Header.SigData))
 	monkey.Unpatch(signature.Sign)
 }

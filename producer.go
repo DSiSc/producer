@@ -50,12 +50,10 @@ func (self *Producer) MakeBlock() (*types.Block, error) {
 		return nil, err
 	}
 	// sign
-	block.Header.StateRoot = blockStore.IntermediateRoot(false)
-	block.HeaderHash = common.HeaderHash(block)
 	err = self.signBlock(block)
 	if nil != err {
 		log.Error("Sign block failed.")
-		return nil, fmt.Errorf("signature error:%v", err)
+		return nil, fmt.Errorf("signature error: %v", err)
 	}
 	log.Info("Block %d, Header hash %x, make success", block.Header.Height, block.HeaderHash)
 	return block, nil
@@ -73,15 +71,16 @@ func (self *Producer) assembleBlock(blockStore *blockchain.BlockChain) (*types.B
 	header := &types.Header{
 		TxRoot:        txRoot,
 		Coinbase:      self.account.Address,
-		PrevBlockHash: common.BlockHash(currentBlock),
+		PrevBlockHash: currentBlock.HeaderHash,
 		Timestamp:     uint64(time.Now().Unix()),
 		Height:        blockStore.GetCurrentBlockHeight() + 1,
+		StateRoot:     blockStore.IntermediateRoot(false),
 	}
 	block := &types.Block{
 		Header:       header,
 		Transactions: txs,
 	}
-	block.HeaderHash = common.HeaderHash(block)
+	block.Header.MixDigest = common.HeaderDigest(header)
 	log.Info("Block %d assemble success with %d txs and header hash %x.", block.Header.Height, len(txs), block.HeaderHash)
 	return block, nil
 }
@@ -100,20 +99,21 @@ func (self *Producer) verifyBlock(block *types.Block, blockStore *blockchain.Blo
 }
 
 func (self *Producer) signBlock(block *types.Block) error {
-	sign, err := signature.Sign(self.account, block.HeaderHash[:])
+	sign, err := signature.Sign(self.account, block.Header.MixDigest[:])
 	if nil != err {
-		return fmt.Errorf("signature error:%v", err)
+		log.Error("signature error.")
+		return err
 	}
 
 	notSigned := true
-	for _, value := range block.SigData {
+	for _, value := range block.Header.SigData {
 		if bytes.Equal(value, sign) {
 			notSigned = false
 			log.Warn("Duplicate sign")
 		}
 	}
 	if notSigned {
-		block.SigData = append(block.SigData, sign)
+		block.Header.SigData = append(block.Header.SigData, sign)
 	}
 	return nil
 }

@@ -1,8 +1,10 @@
 package common
 
 import (
+	"bytes"
 	"crypto/sha256"
 	"encoding/json"
+	"github.com/DSiSc/craft/log"
 	"github.com/DSiSc/craft/types"
 )
 
@@ -20,20 +22,44 @@ func TxHash(tx *types.Transaction) (hash types.Hash) {
 	return
 }
 
-func BlockHash(block *types.Block) (hash types.Hash) {
-	jsonByte, _ := json.Marshal(block)
+func HeaderHash(block *types.Block) (hash types.Hash) {
+	var defaultHash types.Hash
+	if !bytes.Equal(block.HeaderHash[:], defaultHash[:]) {
+		log.Info("block hash %v has exits.", block.HeaderHash)
+		copy(hash[:], block.HeaderHash[:])
+		return
+	}
+	jsonByte, _ := json.Marshal(block.Header)
 	sumByte := Sum(jsonByte)
 	copy(hash[:], sumByte)
 	return
 }
 
-func HeaderHash(block *types.Block) (hash types.Hash) {
-	header := block.Header
-	jsonByte, _ := json.Marshal(header)
+func HeaderDigest(header *types.Header) (hash types.Hash) {
+	var defaultHash types.Hash
+	if !bytes.Equal(header.MixDigest[:], defaultHash[:]) {
+		log.Info("header hash %v has exits.", header.MixDigest)
+		copy(hash[:], header.MixDigest[:])
+		return
+	}
+	newHeader := digestHeader(header)
+	jsonByte, _ := json.Marshal(newHeader)
 	sumByte := Sum(jsonByte)
 	copy(hash[:], sumByte)
-	block.HeaderHash = hash
 	return
+}
+
+func digestHeader(header *types.Header) *types.Header {
+	return &types.Header{
+		ChainID:       header.ChainID,
+		PrevBlockHash: header.PrevBlockHash,
+		StateRoot:     header.StateRoot,
+		TxRoot:        header.TxRoot,
+		ReceiptsRoot:  header.ReceiptsRoot,
+		Height:        header.Height,
+		Timestamp:     header.Timestamp,
+		Coinbase:      header.Coinbase,
+	}
 }
 
 func CopyBytes(b []byte) (copiedBytes []byte) {

@@ -1,6 +1,7 @@
 package common
 
 import (
+	"bytes"
 	"github.com/DSiSc/craft/types"
 	"github.com/stretchr/testify/assert"
 	"math/big"
@@ -92,18 +93,37 @@ func MockBlock() *types.Block {
 			ReceiptsRoot:  MockHash,
 			Height:        1,
 			Timestamp:     uint64(time.Date(2018, time.August, 28, 0, 0, 0, 0, time.UTC).Unix()),
-			MixDigest:     MockHash,
 		},
 		Transactions: make([]*types.Transaction, 0),
 	}
 }
 
 func TestBlockHash(t *testing.T) {
+	assert := assert.New(t)
 	block := MockBlock()
-	blockHash := BlockHash(block)
-	assert.Equal(t, MockBlockHash, blockHash)
+	header := block.Header
+
+	var tmp types.Hash
+	assert.True(bytes.Equal(tmp[:], header.MixDigest[:]))
+	assert.True(bytes.Equal(tmp[:], block.HeaderHash[:]))
+
+	digest := HeaderDigest(header)
+	exceptDigest := types.Hash{
+		0xbd, 0x79, 0x1d, 0x4a, 0xf9, 0x64, 0x8f, 0xc3, 0x7f, 0x94, 0xeb, 0x36, 0x53, 0x19, 0xf6, 0xd0,
+		0xa9, 0x78, 0x9f, 0x9c, 0x22, 0x47, 0x2c, 0xa7, 0xa6, 0x12, 0xa9, 0xca, 0x4, 0x13, 0xc1, 0x4,
+	}
+	assert.Equal(digest, exceptDigest)
+	block.Header.MixDigest = HeaderDigest(header)
+	assert.Equal(digest, exceptDigest)
+
 	headerHash := HeaderHash(block)
-	assert.Equal(t, MockHeaderHash, headerHash)
+	exceptHeaderHash := types.Hash{
+		0x3a, 0x39, 0xda, 0x1, 0x7d, 0x81, 0x44, 0x48, 0xad, 0x93, 0x84, 0x94, 0xa1, 0xdd, 0xc8, 0x30,
+		0x6d, 0xdf, 0x4b, 0x28, 0x36, 0xf2, 0xa1, 0xab, 0xb3, 0x1f, 0x3c, 0xb5, 0xa5, 0xe6, 0x69, 0x73,
+	}
+	assert.Equal(exceptHeaderHash, headerHash)
+
+	block.HeaderHash = HeaderHash(block)
 	headerHash = HeaderHash(block)
-	assert.Equal(t, MockHeaderHash, headerHash)
+	assert.Equal(exceptHeaderHash, headerHash)
 }
