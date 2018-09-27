@@ -49,13 +49,13 @@ func (self *Producer) MakeBlock() (*types.Block, error) {
 		log.Error("The block verified failed.")
 		return nil, err
 	}
+	block.Header.MixDigest = common.HeaderDigest(block.Header)
 	// sign
 	err = self.signBlock(block)
 	if nil != err {
 		log.Error("Sign block failed.")
 		return nil, fmt.Errorf("signature error: %v", err)
 	}
-	block.Header.MixDigest = common.HeaderDigest(block.Header)
 	log.Info("Block %d, Header hash %x, make success", block.Header.Height, block.HeaderHash)
 	return block, nil
 }
