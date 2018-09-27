@@ -55,6 +55,7 @@ func (self *Producer) MakeBlock() (*types.Block, error) {
 		log.Error("Sign block failed.")
 		return nil, fmt.Errorf("signature error: %v", err)
 	}
+	block.Header.MixDigest = common.HeaderDigest(block.Header)
 	log.Info("Block %d, Header hash %x, make success", block.Header.Height, block.HeaderHash)
 	return block, nil
 }
@@ -80,7 +81,6 @@ func (self *Producer) assembleBlock(blockStore *blockchain.BlockChain) (*types.B
 		Header:       header,
 		Transactions: txs,
 	}
-	block.Header.MixDigest = common.HeaderDigest(header)
 	log.Info("Block %d assemble success with %d txs and header hash %x.", block.Header.Height, len(txs), block.HeaderHash)
 	return block, nil
 }
