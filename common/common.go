@@ -22,19 +22,6 @@ func TxHash(tx *types.Transaction) (hash types.Hash) {
 	return
 }
 
-func HeaderHash(block *types.Block) (hash types.Hash) {
-	var defaultHash types.Hash
-	if !bytes.Equal(block.HeaderHash[:], defaultHash[:]) {
-		log.Info("block hash %v has exits.", block.HeaderHash)
-		copy(hash[:], block.HeaderHash[:])
-		return
-	}
-	jsonByte, _ := json.Marshal(block.Header)
-	sumByte := Sum(jsonByte)
-	copy(hash[:], sumByte)
-	return
-}
-
 func HeaderDigest(header *types.Header) (hash types.Hash) {
 	var defaultHash types.Hash
 	if !bytes.Equal(header.MixDigest[:], defaultHash[:]) {
@@ -63,8 +50,8 @@ func digestHeader(header *types.Header) *types.Header {
 }
 
 func CopyBytes(b []byte) (copiedBytes []byte) {
-	if b == nil {
-		return nil
+	if len(b) == 0 {
+		return
 	}
 	copiedBytes = make([]byte, len(b))
 	copy(copiedBytes, b)
