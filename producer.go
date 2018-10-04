@@ -71,7 +71,7 @@ func (self *Producer) assembleBlock(blockStore *blockchain.BlockChain) (*types.B
 	currentBlock := blockStore.GetCurrentBlock()
 	header := &types.Header{
 		TxRoot:        txRoot,
-		Coinbase:      self.account.Address,
+		CoinBase:      self.account.Address,
 		PrevBlockHash: currentBlock.HeaderHash,
 		Timestamp:     uint64(time.Now().Unix()),
 		Height:        blockStore.GetCurrentBlockHeight() + 1,
