@@ -50,6 +50,8 @@ func (self *Producer) MakeBlock() (*types.Block, error) {
 		return nil, err
 	}
 	block.Header.MixDigest = common.HeaderDigest(block.Header)
+	// set state root
+	block.Header.StateRoot = blockStore.IntermediateRoot(false)
 	// sign
 	err = self.signBlock(block)
 	if nil != err {
@@ -75,7 +77,7 @@ func (self *Producer) assembleBlock(blockStore *blockchain.BlockChain) (*types.B
 		PrevBlockHash: currentBlock.HeaderHash,
 		Timestamp:     uint64(time.Now().Unix()),
 		Height:        blockStore.GetCurrentBlockHeight() + 1,
-		StateRoot:     blockStore.IntermediateRoot(false),
+		//StateRoot:     blockStore.IntermediateRoot(false),
 	}
 	block := &types.Block{
 		Header:       header,
