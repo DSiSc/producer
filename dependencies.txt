@@ -10,4 +10,4 @@ github.com/DSiSc/blockstore:master
 github.com/DSiSc/statedb-NG:master
 github.com/DSiSc/validator:master
 github.com/DSiSc/monkey:master
-
+github.com/DSiSc/crypto-suite:master
