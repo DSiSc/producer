@@ -49,7 +49,7 @@ func TxHash(tx *types.Transaction) types.Hash {
 func HeaderDigest(header *types.Header) (hash types.Hash) {
 	var defaultHash types.Hash
 	if !bytes.Equal(header.MixDigest[:], defaultHash[:]) {
-		log.Info("header hash %v has exits.", header.MixDigest)
+		log.Info("header hash %x has exits.", header.MixDigest)
 		copy(hash[:], header.MixDigest[:])
 		return
 	}
