@@ -118,3 +118,21 @@ func TestBlockHash(t *testing.T) {
 	block.Header.MixDigest = HeaderDigest(header)
 	assert.Equal(digest, exceptDigest)
 }
+
+func TestHeaderHash(t *testing.T) {
+	assert := assert.New(t)
+	block := MockBlock()
+
+	var tmp types.Hash
+	assert.True(bytes.Equal(tmp[:], block.HeaderHash[:]))
+	headerHash := HeaderHash(block)
+	exceptHeaderHash := types.Hash{
+		0xbd, 0x79, 0x1d, 0x4a, 0xf9, 0x64, 0x8f, 0xc3, 0x7f, 0x94, 0xeb, 0x36, 0x53, 0x19, 0xf6, 0xd0,
+		0xa9, 0x78, 0x9f, 0x9c, 0x22, 0x47, 0x2c, 0xa7, 0xa6, 0x12, 0xa9, 0xca, 0x4, 0x13, 0xc1, 0x4,
+	}
+	assert.Equal(exceptHeaderHash, headerHash)
+
+	block.HeaderHash = HeaderHash(block)
+	headerHash = HeaderHash(block)
+	assert.Equal(exceptHeaderHash, headerHash)
+}
