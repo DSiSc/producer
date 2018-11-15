@@ -71,13 +71,12 @@ func TestProducer_assembleBlock(t *testing.T) {
 		Address: tools.HexToAddress("333c3310824b7c685133f2bedb2ca4b8b4df633d"),
 	}
 	MockProducer := NewProducer(txpool, account)
-	types.GlobalEventCenter = &eventCenter{}
 	conf := config.BlockChainConfig{
 		PluginName:    blockchain.PLUGIN_MEMDB,
 		StateDataPath: "./state",
 		BlockDataPath: "./state",
 	}
-	err := blockchain.InitBlockChain(conf)
+	err := blockchain.InitBlockChain(conf, &eventCenter{})
 	assert.Nil(err)
 	blockChain, err := blockchain.NewLatestStateBlockChain()
 	assert.NotNil(blockChain)
