@@ -58,8 +58,7 @@ func (self *Producer) MakeBlock() (*types.Block, error) {
 		log.Error("Sign block failed.")
 		return nil, fmt.Errorf("signature error: %v", err)
 	}
-	block.HeaderHash = common.HeaderHash(block)
-	log.Info("Block %d, Header hash %x, and make success", block.Header.Height, block.HeaderHash)
+	log.Info("Block %d make success", block.Header.Height)
 	return block, nil
 }
 
