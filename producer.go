@@ -83,7 +83,7 @@ func (self *Producer) assembleBlock(blockStore *blockchain.BlockChain) (*types.B
 		Header:       header,
 		Transactions: txs,
 	}
-	log.Info("Block %d assemble success with %d txs and header hash %x.", block.Header.Height, len(txs), block.HeaderHash)
+	log.Info("Block %d assemble success with %d txs.", block.Header.Height, len(txs))
 	return block, nil
 }
 
