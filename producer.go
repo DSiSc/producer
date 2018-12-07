@@ -67,7 +67,6 @@ func (self *Producer) assembleBlock(blockStore *blockchain.BlockChain) (*types.B
 	txHash := make([]types.Hash, 0, len(txs))
 	for _, t := range txs {
 		txHash = append(txHash, common.TxHash(t))
-		log.Info("Assemble tx %x to block.", common.TxHash(t))
 	}
 	txRoot := tools.ComputeMerkleRoot(txHash)
 	currentBlock := blockStore.GetCurrentBlock()
@@ -77,7 +76,6 @@ func (self *Producer) assembleBlock(blockStore *blockchain.BlockChain) (*types.B
 		PrevBlockHash: currentBlock.HeaderHash,
 		Timestamp:     uint64(time.Now().Unix()),
 		Height:        blockStore.GetCurrentBlockHeight() + 1,
-		//StateRoot:     blockStore.IntermediateRoot(false),
 	}
 	block := &types.Block{
 		Header:       header,
