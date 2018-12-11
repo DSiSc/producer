@@ -70,15 +70,14 @@ func (self *Producer) assembleBlock(blockStore *blockchain.BlockChain) (*types.B
 	}
 	txRoot := tools.ComputeMerkleRoot(txHash)
 	currentBlock := blockStore.GetCurrentBlock()
-	header := &types.Header{
-		TxRoot:        txRoot,
-		CoinBase:      self.account.Address,
-		PrevBlockHash: currentBlock.HeaderHash,
-		Timestamp:     uint64(time.Now().Unix()),
-		Height:        blockStore.GetCurrentBlockHeight() + 1,
-	}
 	block := &types.Block{
-		Header:       header,
+		Header: &types.Header{
+			TxRoot:        txRoot,
+			CoinBase:      self.account.Address,
+			PrevBlockHash: currentBlock.HeaderHash,
+			Timestamp:     uint64(time.Now().Unix()),
+			Height:        currentBlock.Header.Height + 1,
+		},
 		Transactions: txs,
 	}
 	log.Info("Block %d assemble success with %d txs.", block.Header.Height, len(txs))
