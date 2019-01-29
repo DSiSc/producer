@@ -6,13 +6,13 @@ import (
 	"github.com/DSiSc/blockchain/config"
 	"github.com/DSiSc/craft/types"
 	"github.com/DSiSc/monkey"
+	producerConfig "github.com/DSiSc/producer/config"
 	"github.com/DSiSc/txpool"
 	"github.com/DSiSc/validator/tools"
 	account2 "github.com/DSiSc/validator/tools/account"
 	"github.com/DSiSc/validator/tools/signature"
 	"github.com/DSiSc/validator/worker"
 	"github.com/stretchr/testify/assert"
-	producerConfig "github.com/DSiSc/producer/config"
 	"reflect"
 	"testing"
 )
@@ -55,7 +55,7 @@ func (*eventCenter) UnSubscribeAll() {
 }
 
 var configFile = producerConfig.ProducerConfig{
-	EnableSignatureVerify:false,
+	EnableSignatureVerify: false,
 }
 
 func TestNewProducer(t *testing.T) {

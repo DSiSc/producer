@@ -25,10 +25,10 @@ type Producer struct {
 	enableSignVerify bool
 }
 
-func NewProducer(pool txpool.TxsPool, Account *account.Account, producerConfig config.ProducerConfig) *Producer {
+func NewProducer(pool txpool.TxsPool, account *account.Account, producerConfig config.ProducerConfig) *Producer {
 	return &Producer{
 		txpool:           pool,
-		account:          Account,
+		account:          account,
 		enableSignVerify: producerConfig.EnableSignatureVerify,
 	}
 }
@@ -89,7 +89,7 @@ func (self *Producer) assembleBlock(blockStore *blockchain.BlockChain) (*types.B
 
 func (self *Producer) verifyBlock(block *types.Block, blockStore *blockchain.BlockChain) error {
 	// we support num of works to verify the block
-	work := worker.NewWorker(blockStore, block)
+	work := worker.NewWorker(blockStore, block, self.enableSignVerify)
 	// verify the block
 	err := work.VerifyBlock()
 	if err != nil {
