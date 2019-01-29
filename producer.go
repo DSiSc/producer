@@ -21,11 +21,11 @@ type Producer struct {
 	time   uint64
 	// TODO: we support many workers to promote verification speed  in the future
 	workers          *worker.Worker
-	account          *account.Account
+	account          account.Account
 	enableSignVerify bool
 }
 
-func NewProducer(pool txpool.TxsPool, account *account.Account, producerConfig config.ProducerConfig) *Producer {
+func NewProducer(pool txpool.TxsPool, account account.Account, producerConfig config.ProducerConfig) *Producer {
 	return &Producer{
 		txpool:           pool,
 		account:          account,
@@ -101,7 +101,7 @@ func (self *Producer) verifyBlock(block *types.Block, blockStore *blockchain.Blo
 }
 
 func (self *Producer) signBlock(block *types.Block) error {
-	sign, err := signature.Sign(self.account, block.Header.MixDigest[:])
+	sign, err := signature.Sign(&self.account, block.Header.MixDigest[:])
 	if nil != err {
 		log.Error("signature error.")
 		return err

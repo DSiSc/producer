@@ -61,7 +61,7 @@ var configFile = producerConfig.ProducerConfig{
 func TestNewProducer(t *testing.T) {
 	assert := assert.New(t)
 	txpool := txpool.NewTxPool(txpool.DefaultTxPoolConfig)
-	account := &account2.Account{
+	account := account2.Account{
 		Address: tools.HexToAddress("333c3310824b7c685133f2bedb2ca4b8b4df633d"),
 	}
 	MockProducer := NewProducer(txpool, account, configFile)
@@ -72,7 +72,7 @@ func TestNewProducer(t *testing.T) {
 func TestProducer_assembleBlock(t *testing.T) {
 	assert := assert.New(t)
 	txpool := txpool.NewTxPool(txpool.DefaultTxPoolConfig)
-	account := &account2.Account{
+	account := account2.Account{
 		Address: tools.HexToAddress("333c3310824b7c685133f2bedb2ca4b8b4df633d"),
 	}
 	MockProducer := NewProducer(txpool, account, configFile)
@@ -95,7 +95,7 @@ func TestProducer_assembleBlock(t *testing.T) {
 func TestProducer_MakeBlock(t *testing.T) {
 	assert := assert.New(t)
 	pool := txpool.NewTxPool(txpool.DefaultTxPoolConfig)
-	account := &account2.Account{
+	account := account2.Account{
 		Address: tools.HexToAddress("333c3310824b7c685133f2bedb2ca4b8b4df633d"),
 	}
 	MockProducer := NewProducer(pool, account, configFile)
@@ -165,7 +165,7 @@ func TestProducer_MakeBlock(t *testing.T) {
 
 func Test_verifyBlock(t *testing.T) {
 	assert := assert.New(t)
-	MockProducer := NewProducer(nil, nil, configFile)
+	MockProducer := NewProducer(nil, account2.Account{}, configFile)
 	var d *worker.Worker
 	block := &types.Block{
 		Header: &types.Header{
@@ -188,7 +188,7 @@ func Test_verifyBlock(t *testing.T) {
 
 func Test_signBlock(t *testing.T) {
 	assert := assert.New(t)
-	MockProducer := NewProducer(nil, nil, configFile)
+	MockProducer := NewProducer(nil, account2.Account{}, configFile)
 	block := &types.Block{
 		Header: &types.Header{
 			SigData: [][]byte{{0x1, 0x2, 0x3}},
