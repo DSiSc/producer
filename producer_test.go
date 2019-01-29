@@ -12,6 +12,7 @@ import (
 	"github.com/DSiSc/validator/tools/signature"
 	"github.com/DSiSc/validator/worker"
 	"github.com/stretchr/testify/assert"
+	producerConfig "github.com/DSiSc/producer/config"
 	"reflect"
 	"testing"
 )
@@ -53,13 +54,17 @@ func (*eventCenter) NotifyAll() (errs []error) {
 func (*eventCenter) UnSubscribeAll() {
 }
 
+var configFile = producerConfig.ProducerConfig{
+	EnableSignatureVerify:false,
+}
+
 func TestNewProducer(t *testing.T) {
 	assert := assert.New(t)
 	txpool := txpool.NewTxPool(txpool.DefaultTxPoolConfig)
 	account := &account2.Account{
 		Address: tools.HexToAddress("333c3310824b7c685133f2bedb2ca4b8b4df633d"),
 	}
-	MockProducer := NewProducer(txpool, account)
+	MockProducer := NewProducer(txpool, account, configFile)
 	assert.NotNil(MockProducer)
 	assert.Equal(mockAddress, account.Address)
 }
@@ -70,7 +75,7 @@ func TestProducer_assembleBlock(t *testing.T) {
 	account := &account2.Account{
 		Address: tools.HexToAddress("333c3310824b7c685133f2bedb2ca4b8b4df633d"),
 	}
-	MockProducer := NewProducer(txpool, account)
+	MockProducer := NewProducer(txpool, account, configFile)
 	conf := config.BlockChainConfig{
 		PluginName:    blockchain.PLUGIN_MEMDB,
 		StateDataPath: "./state",
@@ -93,7 +98,7 @@ func TestProducer_MakeBlock(t *testing.T) {
 	account := &account2.Account{
 		Address: tools.HexToAddress("333c3310824b7c685133f2bedb2ca4b8b4df633d"),
 	}
-	MockProducer := NewProducer(pool, account)
+	MockProducer := NewProducer(pool, account, configFile)
 
 	monkey.Patch(blockchain.NewLatestStateBlockChain, func() (*blockchain.BlockChain, error) {
 		return nil, fmt.Errorf("get block chain failed")
@@ -160,7 +165,7 @@ func TestProducer_MakeBlock(t *testing.T) {
 
 func Test_verifyBlock(t *testing.T) {
 	assert := assert.New(t)
-	MockProducer := NewProducer(nil, nil)
+	MockProducer := NewProducer(nil, nil, configFile)
 	var d *worker.Worker
 	block := &types.Block{
 		Header: &types.Header{
@@ -183,7 +188,7 @@ func Test_verifyBlock(t *testing.T) {
 
 func Test_signBlock(t *testing.T) {
 	assert := assert.New(t)
-	MockProducer := NewProducer(nil, nil)
+	MockProducer := NewProducer(nil, nil, configFile)
 	block := &types.Block{
 		Header: &types.Header{
 			SigData: [][]byte{{0x1, 0x2, 0x3}},

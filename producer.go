@@ -7,6 +7,7 @@ import (
 	"github.com/DSiSc/craft/log"
 	"github.com/DSiSc/craft/types"
 	"github.com/DSiSc/producer/common"
+	"github.com/DSiSc/producer/config"
 	"github.com/DSiSc/producer/tools"
 	"github.com/DSiSc/txpool"
 	"github.com/DSiSc/validator/tools/account"
@@ -19,14 +20,16 @@ type Producer struct {
 	txpool txpool.TxsPool
 	time   uint64
 	// TODO: we support many workers to promote verification speed  in the future
-	workers *worker.Worker
-	account *account.Account
+	workers          *worker.Worker
+	account          *account.Account
+	enableSignVerify bool
 }
 
-func NewProducer(pool txpool.TxsPool, Account *account.Account) *Producer {
+func NewProducer(pool txpool.TxsPool, Account *account.Account, producerConfig config.ProducerConfig) *Producer {
 	return &Producer{
-		txpool:  pool,
-		account: Account,
+		txpool:           pool,
+		account:          Account,
+		enableSignVerify: producerConfig.EnableSignatureVerify,
 	}
 }
 
