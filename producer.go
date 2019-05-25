@@ -14,6 +14,7 @@ import (
 	"github.com/DSiSc/validator/tools/signature"
 	"github.com/DSiSc/validator/worker"
 	"time"
+	jconf "github.com/DSiSc/justitia/config"
 )
 
 type Producer struct {
@@ -73,8 +74,10 @@ func (self *Producer) assembleBlock(blockStore *blockchain.BlockChain) (*types.B
 	}
 	txRoot := tools.ComputeMerkleRoot(txHash)
 	currentBlock := blockStore.GetCurrentBlock()
+	chainId, _ := jconf.GetChainIdFromConfig()
 	block := &types.Block{
 		Header: &types.Header{
+			ChainID:       chainId,
 			TxRoot:        txRoot,
 			CoinBase:      self.account.Address,
 			PrevBlockHash: currentBlock.HeaderHash,
