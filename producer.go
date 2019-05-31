@@ -14,7 +14,6 @@ import (
 	"github.com/DSiSc/validator/tools/signature"
 	"github.com/DSiSc/validator/worker"
 	"time"
-	jconf "github.com/DSiSc/justitia/config"
 )
 
 type Producer struct {
@@ -24,6 +23,7 @@ type Producer struct {
 	workers          *worker.Worker
 	account          account.Account
 	enableSignVerify bool
+	chainId          uint64
 }
 
 func NewProducer(pool txpool.TxsPool, account account.Account, producerConfig config.ProducerConfig) *Producer {
@@ -31,6 +31,7 @@ func NewProducer(pool txpool.TxsPool, account account.Account, producerConfig co
 		txpool:           pool,
 		account:          account,
 		enableSignVerify: producerConfig.EnableSignatureVerify,
+		chainId:          producerConfig.ChainId,
 	}
 }
 
@@ -74,10 +75,9 @@ func (self *Producer) assembleBlock(blockStore *repository.Repository) (*types.B
 	}
 	txRoot := tools.ComputeMerkleRoot(txHash)
 	currentBlock := blockStore.GetCurrentBlock()
-	chainId, _ := jconf.GetChainIdFromConfig()
 	block := &types.Block{
 		Header: &types.Header{
-			ChainID:       chainId,
+			ChainID:       self.chainId,
 			TxRoot:        txRoot,
 			CoinBase:      self.account.Address,
 			PrevBlockHash: currentBlock.HeaderHash,
