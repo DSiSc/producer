@@ -3,12 +3,12 @@ package producer
 import (
 	"bytes"
 	"fmt"
-	"github.com/DSiSc/blockchain"
 	"github.com/DSiSc/craft/log"
 	"github.com/DSiSc/craft/types"
 	"github.com/DSiSc/producer/common"
 	"github.com/DSiSc/producer/config"
 	"github.com/DSiSc/producer/tools"
+	"github.com/DSiSc/repository"
 	"github.com/DSiSc/txpool"
 	"github.com/DSiSc/validator/tools/account"
 	"github.com/DSiSc/validator/tools/signature"
@@ -36,10 +36,10 @@ func NewProducer(pool txpool.TxsPool, account account.Account, producerConfig co
 
 func (self *Producer) MakeBlock() (*types.Block, error) {
 	// Get latest block store and state store
-	blockStore, ok := blockchain.NewLatestStateBlockChain()
+	blockStore, ok := repository.NewLatestStateRepository()
 	if nil != ok {
-		log.Error("Get NewLatestStateBlockChain failed.")
-		return nil, fmt.Errorf("get NewLatestStateBlockChain failed")
+		log.Error("Get NewLatestStateRepository failed.")
+		return nil, fmt.Errorf("get NewLatestStateRepository failed")
 	}
 	// make block
 	block, err := self.assembleBlock(blockStore)
@@ -66,7 +66,7 @@ func (self *Producer) MakeBlock() (*types.Block, error) {
 	return block, nil
 }
 
-func (self *Producer) assembleBlock(blockStore *blockchain.BlockChain) (*types.Block, error) {
+func (self *Producer) assembleBlock(blockStore *repository.Repository) (*types.Block, error) {
 	txs := self.txpool.GetTxs()
 	txHash := make([]types.Hash, 0, len(txs))
 	for _, t := range txs {
@@ -90,7 +90,7 @@ func (self *Producer) assembleBlock(blockStore *blockchain.BlockChain) (*types.B
 	return block, nil
 }
 
-func (self *Producer) verifyBlock(block *types.Block, blockStore *blockchain.BlockChain) error {
+func (self *Producer) verifyBlock(block *types.Block, blockStore *repository.Repository) error {
 	// we support num of works to verify the block
 	work := worker.NewWorker(blockStore, block, self.enableSignVerify)
 	// verify the block

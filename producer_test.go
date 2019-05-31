@@ -2,11 +2,11 @@ package producer
 
 import (
 	"fmt"
-	"github.com/DSiSc/blockchain"
-	"github.com/DSiSc/blockchain/config"
 	"github.com/DSiSc/craft/types"
 	"github.com/DSiSc/monkey"
 	producerConfig "github.com/DSiSc/producer/config"
+	"github.com/DSiSc/repository"
+	"github.com/DSiSc/repository/config"
 	"github.com/DSiSc/txpool"
 	"github.com/DSiSc/validator/tools"
 	account2 "github.com/DSiSc/validator/tools/account"
@@ -60,7 +60,7 @@ var configFile = producerConfig.ProducerConfig{
 
 func TestNewProducer(t *testing.T) {
 	assert := assert.New(t)
-	txpool := txpool.NewTxPool(txpool.DefaultTxPoolConfig)
+	txpool := txpool.NewTxPool(txpool.DefaultTxPoolConfig, &eventCenter{})
 	account := account2.Account{
 		Address: tools.HexToAddress("333c3310824b7c685133f2bedb2ca4b8b4df633d"),
 	}
@@ -71,47 +71,54 @@ func TestNewProducer(t *testing.T) {
 
 func TestProducer_assembleBlock(t *testing.T) {
 	assert := assert.New(t)
-	txpool := txpool.NewTxPool(txpool.DefaultTxPoolConfig)
+	txpool := txpool.NewTxPool(txpool.DefaultTxPoolConfig, &eventCenter{})
 	account := account2.Account{
 		Address: tools.HexToAddress("333c3310824b7c685133f2bedb2ca4b8b4df633d"),
 	}
 	MockProducer := NewProducer(txpool, account, configFile)
-	conf := config.BlockChainConfig{
-		PluginName:    blockchain.PLUGIN_MEMDB,
+	conf := config.RepositoryConfig{
+		PluginName:    repository.PLUGIN_MEMDB,
 		StateDataPath: "./state",
 		BlockDataPath: "./state",
 	}
-	err := blockchain.InitBlockChain(conf, &eventCenter{})
+	err := repository.InitRepository(conf, &eventCenter{})
 	assert.Nil(err)
-	blockChain, err := blockchain.NewLatestStateBlockChain()
+	blockChain, err := repository.NewLatestStateRepository()
 	assert.NotNil(blockChain)
 	assert.Nil(err)
+	genesisBlock := &types.Block{
+		Header: &types.Header{
+			Height: 1,
+		},
+		HeaderHash: types.Hash{0xbf, 0x35, 0x40, 0x34, 0x12, 0x0d, 0xca, 0x57, 0x0a, 0x4d, 0xc6, 0x65, 0xcb, 0x71, 0x72, 0xa7, 0x0e, 0x71, 0xac, 0x21, 0x3e, 0xc1, 0x34, 0xe0, 0x61, 0x8a, 0x1f, 0x50, 0xc3, 0xe8, 0x27, 0x54},
+	}
+	blockChain.WriteBlock(genesisBlock)
 	block, err1 := MockProducer.assembleBlock(blockChain)
 	assert.Nil(err1)
 	assert.NotNil(block)
-	assert.Equal(uint64(1), block.Header.Height)
+	assert.Equal(uint64(2), block.Header.Height)
 }
 
 func TestProducer_MakeBlock(t *testing.T) {
 	assert := assert.New(t)
-	pool := txpool.NewTxPool(txpool.DefaultTxPoolConfig)
+	pool := txpool.NewTxPool(txpool.DefaultTxPoolConfig, &eventCenter{})
 	account := account2.Account{
 		Address: tools.HexToAddress("333c3310824b7c685133f2bedb2ca4b8b4df633d"),
 	}
 	MockProducer := NewProducer(pool, account, configFile)
 
-	monkey.Patch(blockchain.NewLatestStateBlockChain, func() (*blockchain.BlockChain, error) {
+	monkey.Patch(repository.NewLatestStateRepository, func() (*repository.Repository, error) {
 		return nil, fmt.Errorf("get block chain failed")
 	})
 	block, err := MockProducer.MakeBlock()
 	assert.Nil(block)
-	assert.Equal(err, fmt.Errorf("get NewLatestStateBlockChain failed"))
+	assert.Equal(err, fmt.Errorf("get NewLatestStateRepository failed"))
 
-	monkey.Patch(blockchain.NewLatestStateBlockChain, func() (*blockchain.BlockChain, error) {
+	monkey.Patch(repository.NewLatestStateRepository, func() (*repository.Repository, error) {
 		return nil, nil
 	})
-	var b *blockchain.BlockChain
-	monkey.PatchInstanceMethod(reflect.TypeOf(b), "GetCurrentBlock", func(*blockchain.BlockChain) *types.Block {
+	var b *repository.Repository
+	monkey.PatchInstanceMethod(reflect.TypeOf(b), "GetCurrentBlock", func(*repository.Repository) *types.Block {
 		return &types.Block{
 			Header: &types.Header{
 				Height: 0,
@@ -122,10 +129,10 @@ func TestProducer_MakeBlock(t *testing.T) {
 			},
 		}
 	})
-	monkey.PatchInstanceMethod(reflect.TypeOf(b), "GetCurrentBlockHeight", func(*blockchain.BlockChain) uint64 {
+	monkey.PatchInstanceMethod(reflect.TypeOf(b), "GetCurrentBlockHeight", func(*repository.Repository) uint64 {
 		return uint64(0)
 	})
-	monkey.PatchInstanceMethod(reflect.TypeOf(b), "IntermediateRoot", func(*blockchain.BlockChain, bool) types.Hash {
+	monkey.PatchInstanceMethod(reflect.TypeOf(b), "IntermediateRoot", func(*repository.Repository, bool) types.Hash {
 		return types.Hash{
 			0xbd, 0x79, 0x1d, 0x4a, 0xf9, 0x64, 0x8f, 0xc3, 0x7f, 0x94, 0xeb, 0x36, 0x53, 0x19, 0xf6, 0xd0,
 			0xa9, 0x78, 0x9f, 0x9c, 0x22, 0x47, 0x2c, 0xa7, 0xa6, 0x12, 0xa9, 0xca, 0x4, 0x13, 0xc1, 0x4,
